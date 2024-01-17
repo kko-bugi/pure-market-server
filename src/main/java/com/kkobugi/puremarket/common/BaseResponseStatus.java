@@ -12,13 +12,30 @@ public enum BaseResponseStatus {
     /**
      * 2000: Request 오류
      */
-    // user(2000~2099)
+    // users(2000-2099)
     INVALID_USER_IDX(false, 2000, "잘못된 user Idx 입니다."),
+
+    // produce(2100-2199)
+
+    // recipe(2200-2299)
+
+    // ingredient(2300-2399)
+
+    // giveaway(2400-2499)
+
 
     /**
      * 3000: Response 오류
      */
-    // user(3000~3099)
+    // users(3000~3099)
+
+    // produce(3100-3199)
+
+    // recipe(3200-3299)
+
+    // ingredient(3300-3399)
+
+    // giveaway(3400-3499)
 
 
     /**
