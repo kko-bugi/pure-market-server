@@ -18,12 +18,10 @@ public class User extends BaseEntity {
     @Column(length = 30)
     private String nickname;
 
-    @Column
+    @Column(nullable = false)
     private String loginId;
 
-    @Column
+    @Column(nullable = false)
     private String password;
-
-    @Column
     private String contact;
 }
