@@ -2,6 +2,7 @@ package com.kkobugi.puremarket.user.entity;
 
 import com.kkobugi.puremarket.common.BaseEntity;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
@@ -15,7 +16,7 @@ public class User extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userIdx;
 
-    @Column(length = 30)
+    @Column(nullable = false, length = 30)
     private String nickname;
 
     @Column(nullable = false)
@@ -24,4 +25,12 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String password;
     private String contact;
+
+    @Builder
+    public User(String nickname, String loginId, String password, String contact) {
+        this.nickname = nickname;
+        this.loginId = loginId;
+        this.password = password;
+        this.contact = contact;
+    }
 }
