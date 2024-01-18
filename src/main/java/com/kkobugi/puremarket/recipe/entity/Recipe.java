@@ -1,7 +1,7 @@
 package com.kkobugi.puremarket.recipe.entity;
 
 import com.kkobugi.puremarket.common.BaseEntity;
-import com.kkobugi.puremarket.user.entity.User;
+import com.kkobugi.puremarket.user.domain.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +16,7 @@ public class Recipe extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long recipeIdx;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "userIdx")
     private User user;
 
