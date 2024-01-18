@@ -16,7 +16,7 @@ public class Ingredient extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long ingredientIdx;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "recipeIdx")
     private Recipe recipe;
 

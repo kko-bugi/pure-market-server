@@ -16,7 +16,7 @@ public class Produce extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long produceIdx;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "userIdx")
     private User user;
 
