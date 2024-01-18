@@ -1,6 +1,6 @@
-package com.kkobugi.puremarket.user.dto;
+package com.kkobugi.puremarket.user.domain.dto;
 
-import com.kkobugi.puremarket.user.entity.User;
+import com.kkobugi.puremarket.user.domain.entity.User;
 import lombok.Builder;
 
 @Builder

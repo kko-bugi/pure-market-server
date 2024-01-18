@@ -1,7 +1,7 @@
 package com.kkobugi.puremarket.giveaway.entity;
 
 import com.kkobugi.puremarket.common.BaseEntity;
-import com.kkobugi.puremarket.user.entity.User;
+import com.kkobugi.puremarket.user.domain.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,4 +1,4 @@
-package com.kkobugi.puremarket.user.entity;
+package com.kkobugi.puremarket.user.domain.entity;
 
 import com.kkobugi.puremarket.common.BaseEntity;
 import jakarta.persistence.*;

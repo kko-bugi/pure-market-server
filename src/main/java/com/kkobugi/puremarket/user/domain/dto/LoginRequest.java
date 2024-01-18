@@ -1,4 +1,4 @@
-package com.kkobugi.puremarket.user.dto;
+package com.kkobugi.puremarket.user.domain.dto;
 
 public record LoginRequest(
         String loginId,
