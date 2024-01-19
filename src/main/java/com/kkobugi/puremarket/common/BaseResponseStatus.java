@@ -14,6 +14,10 @@ public enum BaseResponseStatus {
      */
     // users(2000-2099)
     INVALID_USER_IDX(false, 2000, "잘못된 user Idx 입니다."),
+    DUPLICATED_LOGIN_ID(false, 2001, "이미 사용중인 아이디입니다."),
+    DUPLICATED_NICKNAME(false, 2002, "이미 사용중인 닉네임입니다."),
+    UNMATCHED_PASSWORD(false, 2003, "비밀번호가 일치하지 않습니다."),
+    INVALIID_PASSWORD(false, 2004, "비민번호가 잘못되었습니다."),
 
     // produce(2100-2199)
 

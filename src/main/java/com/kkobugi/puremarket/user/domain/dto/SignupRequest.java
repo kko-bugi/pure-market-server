@@ -4,15 +4,16 @@ import com.kkobugi.puremarket.user.domain.entity.User;
 import lombok.Builder;
 
 @Builder
-public record JoinRequest(
+public record SignupRequest(
         String nickname,
         String loginId,
         String password,
+        String passwordCheck,
         String contact) {
-    public User toUser() {
+    public User toUser(String encodedPassword) {
         return User.builder()
                 .loginId(this.loginId)
-                .password(this.password)
+                .password(encodedPassword)
                 .nickname(this.nickname)
                 .contact(this.contact)
                 .build();
