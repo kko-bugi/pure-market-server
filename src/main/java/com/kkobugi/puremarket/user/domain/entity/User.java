@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 
+import static com.kkobugi.puremarket.common.constants.Constant.ACTIVE;
+
 @Entity
 @Getter
 @NoArgsConstructor
@@ -32,5 +34,9 @@ public class User extends BaseEntity {
         this.loginId = loginId;
         this.password = password;
         this.contact = contact;
+    }
+
+    public void login() {
+        this.setStatus(ACTIVE);
     }
 }
