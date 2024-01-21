@@ -12,9 +12,9 @@ public record SignupRequest(
         String contact) { //TODO: 프로필 이미지 추가
     public User toUser(String encodedPassword) {
         return User.builder()
+                .nickname(this.nickname)
                 .loginId(this.loginId)
                 .password(encodedPassword)
-                .nickname(this.nickname)
                 .contact(this.contact)
                 .build();
     }

@@ -10,6 +10,7 @@ import com.kkobugi.puremarket.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -52,14 +53,18 @@ public class UserService {
 
 
     // 로그인
+    @Transactional
     public LoginResponse login(LoginRequest loginRequest) throws BaseException {
         try {
             User user = userRepository.findByLoginId(loginRequest.loginId()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
             if(!user.getPassword().equals(loginRequest.password())) throw new BaseException(INVALIID_PASSWORD);
-            user.login();
+
+            String accessToken = authService.generateAccessToken(user);
+            user.updateAccessToken(accessToken);
+            user.login(); // active
             userRepository.save(user);
 
-            return new LoginResponse(authService.generateAccessToken(user));
+            return new LoginResponse(accessToken);
         } catch (BaseException e) {
             throw e;
         } catch (Exception e) {
@@ -71,7 +76,7 @@ public class UserService {
         if(userIdx == null) return null;
         else {
             Optional<User> user = userRepository.findByUserIdx(userIdx);
-            return user.get();
+            return user.orElse(null);
         }
     }
 }

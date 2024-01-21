@@ -13,7 +13,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import static com.kkobugi.puremarket.common.BaseResponseStatus.*;
 import static com.kkobugi.puremarket.common.constants.RequestURI.user;
 
 @RestController
@@ -38,23 +37,22 @@ public class AuthController {
             @ApiResponse(responseCode = "2003", description = "비밀번호 불일치")})
     public BaseResponse<?> signup(@RequestBody SignupRequest signupRequest) {
         try {
-            userService.signup(signupRequest);
-            return new BaseResponse(SUCCESS);
+            return new BaseResponse<>(userService.signup(signupRequest));
         } catch(BaseException e) {
-            return new BaseResponse(e.getStatus());
+            return new BaseResponse<>(e.getStatus());
         }
     }
 
     /**
-     * [POST]로그인
-     *@paramloginRequest
+     * [POST] 로그인
+     *@param loginRequest
      */
     @PostMapping("/login")
     public BaseResponse<?> login(@RequestBody LoginRequest loginRequest) {
         try {
             return new BaseResponse<>(userService.login(loginRequest));
         } catch(BaseException e) {
-            return new BaseResponse(e.getStatus());
+            return new BaseResponse<>(e.getStatus());
         }
     }
 
