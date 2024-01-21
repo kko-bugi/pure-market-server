@@ -9,7 +9,7 @@ public record SignupRequest(
         String loginId,
         String password,
         String passwordCheck,
-        String contact) {
+        String contact) { //TODO: 프로필 이미지 추가
     public User toUser(String encodedPassword) {
         return User.builder()
                 .loginId(this.loginId)
