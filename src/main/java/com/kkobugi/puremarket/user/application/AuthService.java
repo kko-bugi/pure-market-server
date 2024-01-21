@@ -19,7 +19,7 @@ public class AuthService {
     private static String secretKey;
 
     // 토큰 발급
-    public static String generateAccessToken(User user) {
+    public String generateAccessToken(User user) {
         Claims claims = Jwts.claims();
         claims.put("loginId", user.getLoginId());
         claims.put("userIdx", user.getUserIdx());
@@ -34,7 +34,7 @@ public class AuthService {
         return accessToken;
     }
 
-    public static String getLoginIdFromToken(String token) {
+    public String getLoginIdFromToken(String token) {
         return Jwts.parser()
                 .setSigningKey(secretKey)
                 .parseClaimsJws(token)
@@ -43,7 +43,7 @@ public class AuthService {
         //return extractClaims(token, secretKey).get("loginId").toString();
     }
 
-    public static Long getUserIdxFromToken(String token) {
+    public Long getUserIdxFromToken(String token) {
         return Jwts.parser()
                 .setSigningKey(secretKey)
                 .parseClaimsJws(token)
@@ -52,12 +52,12 @@ public class AuthService {
     }
 
     // 토큰 parsing
-    private static Claims extractClaims(String token, String secretKey) {
+    private Claims extractClaims(String token, String secretKey) {
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
     }
 
     // 토큰 만료 시간 체크
-    public static boolean isExpired(String token, String secretKey) {
+    public boolean isExpired(String token, String secretKey) {
         Date expiredDate = extractClaims(token, secretKey).getExpiration();
         return expiredDate.before(new Date());
     }
