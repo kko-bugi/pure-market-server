@@ -1,5 +1,6 @@
 package com.kkobugi.puremarket.user.utils;
 
+import com.kkobugi.puremarket.common.BaseException;
 import com.kkobugi.puremarket.user.application.AuthService;
 import com.kkobugi.puremarket.user.application.UserService;
 import com.kkobugi.puremarket.user.domain.entity.User;
@@ -16,6 +17,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+
+import static com.kkobugi.puremarket.common.BaseResponseStatus.INVALID_USER_IDX;
+
 @Component
 @RequiredArgsConstructor
 public class JwtTokenFilter extends OncePerRequestFilter {
@@ -27,7 +31,12 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String accessToken = getTokenFromRequest(request);
         if (accessToken != null && authService.validateToken(accessToken)) {
-            UsernamePasswordAuthenticationToken authentication = getAuthenticationFromToken(accessToken);
+            UsernamePasswordAuthenticationToken authentication = null;
+            try {
+                authentication = getAuthenticationFromToken(accessToken);
+            } catch (BaseException e) {
+                throw new RuntimeException(e);
+            }
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authentication); // 권한 부여
         }
@@ -42,9 +51,12 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         else return null;
     }
 
-    private UsernamePasswordAuthenticationToken getAuthenticationFromToken(String token) {
+    private UsernamePasswordAuthenticationToken getAuthenticationFromToken(String token) throws BaseException {
         Long userIdx = authService.getUserIdxFromToken(token);
         User user = userService.getUserByUserIdx(userIdx);
+        if (user == null) {
+            throw new BaseException(INVALID_USER_IDX);
+        }
         return new UsernamePasswordAuthenticationToken(user, null, null);
     }
 
