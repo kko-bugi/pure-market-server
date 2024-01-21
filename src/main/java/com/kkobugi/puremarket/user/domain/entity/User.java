@@ -28,12 +28,20 @@ public class User extends BaseEntity {
     private String password;
     private String contact;
 
+    @Column(nullable = false)
+    private String accessToken;
+
+    //TODO: 프로필 이미지 추가
+
     @Builder
     public User(String nickname, String loginId, String password, String contact) {
         this.nickname = nickname;
         this.loginId = loginId;
         this.password = password;
         this.contact = contact;
+    }
+    public void updateAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
 
     public void login() {
