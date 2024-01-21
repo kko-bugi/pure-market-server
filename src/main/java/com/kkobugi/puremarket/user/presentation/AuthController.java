@@ -3,6 +3,7 @@ package com.kkobugi.puremarket.user.presentation;
 import com.kkobugi.puremarket.common.BaseException;
 import com.kkobugi.puremarket.common.BaseResponse;
 import com.kkobugi.puremarket.user.application.UserService;
+import com.kkobugi.puremarket.user.domain.dto.LoginRequest;
 import com.kkobugi.puremarket.user.domain.dto.SignupRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -20,7 +21,7 @@ import static com.kkobugi.puremarket.common.constants.RequestURI.user;
 @SecurityRequirement(name = "Bearer")
 @RequestMapping(user)
 @Tag(name = "User", description = "User API")
-public class UserController {
+public class AuthController {
 
     private final UserService userService;
 
@@ -39,6 +40,19 @@ public class UserController {
         try {
             userService.signup(signupRequest);
             return new BaseResponse(SUCCESS);
+        } catch(BaseException e) {
+            return new BaseResponse(e.getStatus());
+        }
+    }
+
+    /**
+     * [POST]로그인
+     *@paramloginRequest
+     */
+    @PostMapping("/login")
+    public BaseResponse<?> login(@RequestBody LoginRequest loginRequest) {
+        try {
+            return new BaseResponse<>(userService.login(loginRequest));
         } catch(BaseException e) {
             return new BaseResponse(e.getStatus());
         }

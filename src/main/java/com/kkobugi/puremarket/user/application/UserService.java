@@ -1,6 +1,8 @@
 package com.kkobugi.puremarket.user.application;
 
 import com.kkobugi.puremarket.common.BaseException;
+import com.kkobugi.puremarket.user.domain.dto.LoginRequest;
+import com.kkobugi.puremarket.user.domain.dto.LoginResponse;
 import com.kkobugi.puremarket.user.domain.dto.SignupRequest;
 import com.kkobugi.puremarket.user.domain.dto.SignupResponse;
 import com.kkobugi.puremarket.user.domain.entity.User;
@@ -8,6 +10,8 @@ import com.kkobugi.puremarket.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 import static com.kkobugi.puremarket.common.BaseResponseStatus.*;
 
@@ -26,7 +30,7 @@ public class UserService {
             if(!signupRequest.password().equals(signupRequest.passwordCheck())) throw new BaseException(UNMATCHED_PASSWORD);
 
             User newUser = signupRequest.toUser(encoder.encode(signupRequest.password()));
-            String accessToken = authService.createToken(newUser);
+            String accessToken = authService.generateAccessToken(newUser);
             userRepository.save(newUser);
 
             return new SignupResponse(accessToken);
@@ -44,5 +48,30 @@ public class UserService {
     // 닉네임 중복 체크
     public boolean checkNickname(String nickname) {
         return userRepository.existsByNickname(nickname);
+    }
+
+
+    // 로그인
+    public LoginResponse login(LoginRequest loginRequest) throws BaseException {
+        try {
+            User user = userRepository.findByLoginId(loginRequest.loginId()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            if(!user.getPassword().equals(loginRequest.password())) throw new BaseException(INVALIID_PASSWORD);
+            user.login();
+            userRepository.save(user);
+
+            return new LoginResponse(authService.generateAccessToken(user));
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public User getUserByUserIdx(Long userIdx) {
+        if(userIdx == null) return null;
+        else {
+            Optional<User> user = userRepository.findByUserIdx(userIdx);
+            return user.get();
+        }
     }
 }
