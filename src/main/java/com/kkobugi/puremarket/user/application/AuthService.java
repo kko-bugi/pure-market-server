@@ -25,13 +25,12 @@ public class AuthService {
         claims.put("userIdx", user.getUserIdx());
 
         // 토큰 생성
-        String accessToken =  Jwts.builder()
+        return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expireTime))
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
-        return accessToken;
     }
 
     public String getLoginIdFromToken(String token) {
