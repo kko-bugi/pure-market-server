@@ -38,8 +38,7 @@ public class AuthController {
             @ApiResponse(responseCode = "2003", description = "비밀번호 불일치")})
     public BaseResponse<?> signup(@RequestBody SignupRequest signupRequest) {
         try {
-            userService.signup(signupRequest);
-            return new BaseResponse(SUCCESS);
+            return new BaseResponse<>(userService.signup(signupRequest));
         } catch(BaseException e) {
             return new BaseResponse(e.getStatus());
         }
