@@ -1,7 +1,7 @@
-package com.kkobugi.puremarket.ingredient.entity;
+package com.kkobugi.puremarket.ingredient.domain.entity;
 
 import com.kkobugi.puremarket.common.BaseEntity;
-import com.kkobugi.puremarket.recipe.entity.Recipe;
+import com.kkobugi.puremarket.recipe.domain.entity.Recipe;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,4 +25,8 @@ public class Ingredient extends BaseEntity {
 
     @Column(nullable = false)
     private String quantity;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private String ingredientType;
 }
