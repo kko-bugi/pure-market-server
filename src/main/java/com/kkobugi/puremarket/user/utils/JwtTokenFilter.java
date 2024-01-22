@@ -18,7 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-import static com.kkobugi.puremarket.common.BaseResponseStatus.INVALID_USER_IDX;
+import static com.kkobugi.puremarket.common.enums.BaseResponseStatus.INVALID_USER_IDX;
 
 @Component
 @RequiredArgsConstructor

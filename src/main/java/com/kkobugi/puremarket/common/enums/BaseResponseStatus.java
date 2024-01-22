@@ -1,4 +1,4 @@
-package com.kkobugi.puremarket.common;
+package com.kkobugi.puremarket.common.enums;
 
 import lombok.Getter;
 

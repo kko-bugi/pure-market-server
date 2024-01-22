@@ -3,10 +3,11 @@ package com.kkobugi.puremarket.common;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.kkobugi.puremarket.common.enums.BaseResponseStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import static com.kkobugi.puremarket.common.BaseResponseStatus.SUCCESS;
+import static com.kkobugi.puremarket.common.enums.BaseResponseStatus.SUCCESS;
 
 @Getter
 @AllArgsConstructor

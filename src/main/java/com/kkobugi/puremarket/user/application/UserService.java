@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-import static com.kkobugi.puremarket.common.BaseResponseStatus.*;
+import static com.kkobugi.puremarket.common.enums.BaseResponseStatus.*;
 
 @Service
 @RequiredArgsConstructor

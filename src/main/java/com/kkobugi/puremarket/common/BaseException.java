@@ -1,5 +1,6 @@
 package com.kkobugi.puremarket.common;
 
+import com.kkobugi.puremarket.common.enums.BaseResponseStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
