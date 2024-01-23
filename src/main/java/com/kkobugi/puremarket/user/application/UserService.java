@@ -8,6 +8,7 @@ import com.kkobugi.puremarket.user.domain.dto.SignupResponse;
 import com.kkobugi.puremarket.user.domain.entity.User;
 import com.kkobugi.puremarket.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,7 @@ import java.util.Optional;
 
 import static com.kkobugi.puremarket.common.enums.BaseResponseStatus.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -32,6 +34,7 @@ public class UserService {
 
             User newUser = signupRequest.toUser(encoder.encode(signupRequest.password()));
             String accessToken = authService.generateAccessToken(newUser);
+            newUser.updateAccessToken(accessToken);
             userRepository.save(newUser);
 
             return new SignupResponse(accessToken);
