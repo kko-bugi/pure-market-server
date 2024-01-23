@@ -60,7 +60,7 @@ public class UserService {
     public LoginResponse login(LoginRequest loginRequest) throws BaseException {
         try {
             User user = userRepository.findByLoginId(loginRequest.loginId()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
-            if(!user.getPassword().equals(loginRequest.password())) throw new BaseException(INVALIID_PASSWORD);
+            if(!encoder.matches(loginRequest.password(), user.getPassword())) throw new BaseException(INVALIID_PASSWORD);
 
             String accessToken = authService.generateAccessToken(user);
             user.updateAccessToken(accessToken);
