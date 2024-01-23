@@ -21,7 +21,6 @@ public class WebSecurityConfig {
     private final UserService userService;
     private final AuthService authService;
 
-//    @Value("${jwt.secret-key}")
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity

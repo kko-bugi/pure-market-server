@@ -16,7 +16,7 @@ import java.util.Date;
 public class AuthService {
     private static final int expireTime = 864000;
     @Value("${jwt.secret-key}")
-    private static String secretKey;
+    private String secretKey;
 
     // 토큰 발급
     public String generateAccessToken(User user) {
