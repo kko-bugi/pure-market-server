@@ -28,11 +28,9 @@ public class WebSecurityConfig {
                 .sessionManagement((sessionManagement) ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((authorizeRequests) -> authorizeRequests
-                        .requestMatchers( // TODO: 접근 권한 수정 필요
-                                new AntPathRequestMatcher("/"),
-                                new AntPathRequestMatcher("/api/v1/**")).permitAll()
-                        .anyRequest().authenticated()
-                ) //TODO: 마이페이지 접근 권한 설정 추가
+                        .requestMatchers(
+                                new AntPathRequestMatcher("/api/v1/users/login")).permitAll()
+                        .anyRequest().authenticated()) //TODO: 마이페이지 접근 권한 설정 추가
                 .addFilterBefore(new JwtTokenFilter(authService, userService), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
