@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 
-import static com.kkobugi.puremarket.common.constants.Constant.ACTIVE;
+import static com.kkobugi.puremarket.common.constants.Constant.*;
 
 @Entity
 @Getter
@@ -28,9 +28,6 @@ public class User extends BaseEntity {
     private String password;
     private String contact;
 
-    @Column(nullable = false)
-    private String accessToken;
-
     //TODO: 프로필 이미지 추가
 
     @Builder
@@ -40,11 +37,12 @@ public class User extends BaseEntity {
         this.password = password;
         this.contact = contact;
     }
-    public void updateAccessToken(String accessToken) {
-        this.accessToken = accessToken;
-    }
 
     public void login() {
         this.setStatus(ACTIVE);
+    }
+
+    public void logout() {
+        this.setStatus(LOGOUT);
     }
 }
