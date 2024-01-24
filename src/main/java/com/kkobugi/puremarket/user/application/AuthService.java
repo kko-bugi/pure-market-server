@@ -14,7 +14,7 @@ import java.util.Date;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    @Value("${jwt.token-validity-in-seconds}")
+    @Value("${jwt.token-validity-in-millis}")
     private int expireTime;
     @Value("${jwt.secret-key}")
     private String secretKey;
