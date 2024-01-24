@@ -78,4 +78,19 @@ class UserServiceTest {
         // then
         assertThrows(BaseException.class, () -> userService.signup(signupRequest2), DUPLICATED_NICKNAME.getMessage());
     }
+
+    @Test
+    @Transactional
+    @DisplayName("아이디 중복 체크")
+    public void check_duplicated_loginId() throws BaseException {
+        // given
+        SignupRequest signupRequest1 = new SignupRequest("nickname1", "id", "pw", "pw", "01012345678");
+        SignupRequest signupRequest2 = new SignupRequest("nickname2", "id", "pw", "pw", "01012345679");
+
+        // when
+        userService.signup(signupRequest1);
+
+        // then
+        assertThrows(BaseException.class, () -> userService.signup(signupRequest2) ,DUPLICATED_LOGIN_ID.getMessage());
+    }
 }
