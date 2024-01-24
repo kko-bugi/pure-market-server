@@ -33,7 +33,7 @@ public class AuthService {
     @Value("${jwt.secret-key}")
     private String secretKey;
 
-    private final RedisTemplate redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
 
     // 토큰 발급
     public JwtDto generateToken(User user) {
@@ -100,7 +100,7 @@ public class AuthService {
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
     }
 
-    // 토큰 만료시간 체크
+    // 토큰 만료 여부 체크
     public boolean isExpired(String token, String secretKey) {
         Date expiredDate = extractClaims(token, secretKey).getExpiration();
         return expiredDate.before(new Date());
