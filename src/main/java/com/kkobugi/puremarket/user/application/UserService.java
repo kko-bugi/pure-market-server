@@ -1,20 +1,19 @@
 package com.kkobugi.puremarket.user.application;
 
 import com.kkobugi.puremarket.common.BaseException;
-import com.kkobugi.puremarket.user.domain.dto.LoginRequest;
-import com.kkobugi.puremarket.user.domain.dto.LoginResponse;
-import com.kkobugi.puremarket.user.domain.dto.SignupRequest;
-import com.kkobugi.puremarket.user.domain.dto.SignupResponse;
+import com.kkobugi.puremarket.user.domain.dto.*;
 import com.kkobugi.puremarket.user.domain.entity.User;
 import com.kkobugi.puremarket.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+import static com.kkobugi.puremarket.common.constants.Constant.ACTIVE;
 import static com.kkobugi.puremarket.common.enums.BaseResponseStatus.*;
 
 @Slf4j
@@ -26,21 +25,20 @@ public class UserService {
     private final AuthService authService;
 
     // 회원가입
-    public SignupResponse signup(SignupRequest signupRequest) throws BaseException {
+    @Transactional(rollbackFor = Exception.class)
+    public JwtDto signup(SignupRequest signupRequest) throws BaseException {
         try {
             if(checkLoginId(signupRequest.loginId())) throw new BaseException(DUPLICATED_LOGIN_ID);
             if(checkNickname(signupRequest.nickname())) throw new BaseException(DUPLICATED_NICKNAME);
             if(!signupRequest.password().equals(signupRequest.passwordCheck())) throw new BaseException(UNMATCHED_PASSWORD);
 
             User newUser = signupRequest.toUser(encoder.encode(signupRequest.password()));
-            String accessToken = authService.generateAccessToken(newUser);
-            newUser.updateAccessToken(accessToken);
             userRepository.save(newUser);
-
-            return new SignupResponse(accessToken);
+            return authService.generateToken(newUser);
         } catch (BaseException e) {
             throw e;
         } catch (Exception e) {
+            e.printStackTrace();
             throw new BaseException(DATABASE_ERROR);
         }
     }
@@ -56,18 +54,17 @@ public class UserService {
 
 
     // 로그인
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public LoginResponse login(LoginRequest loginRequest) throws BaseException {
         try {
             User user = userRepository.findByLoginId(loginRequest.loginId()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
             if(!encoder.matches(loginRequest.password(), user.getPassword())) throw new BaseException(INVALID_PASSWORD);
 
-            String accessToken = authService.generateAccessToken(user);
-            user.updateAccessToken(accessToken);
+            JwtDto jwtDto = authService.generateToken(user);
             user.login(); // active
             userRepository.save(user);
 
-            return new LoginResponse(accessToken);
+            return new LoginResponse(jwtDto.accessToken(), jwtDto.refreshToken());
         } catch (BaseException e) {
             throw e;
         } catch (Exception e) {
@@ -80,6 +77,21 @@ public class UserService {
         else {
             Optional<User> user = userRepository.findByUserIdx(userIdx);
             return user.orElse(null);
+        }
+    }
+
+    // 로그아웃
+    @Transactional
+    public void logout(Long userIdx) throws BaseException {
+        try {
+            User user = userRepository.findByUserIdxAndStatusEquals(userIdx, ACTIVE)
+                    .orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            authService.logout(user);
+            user.logout(); // LOGOUT
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(DATABASE_ERROR);
         }
     }
 }

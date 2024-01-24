@@ -19,6 +19,7 @@ public enum BaseResponseStatus {
     UNMATCHED_PASSWORD(false, 2003, "비밀번호가 일치하지 않습니다."),
     INVALID_PASSWORD(false, 2004, "비민번호가 잘못되었습니다."),
     INVALID_LOGIN_ID(false, 2005, "잘못된 아이디입니다."),
+    INVALID_TOKEN(false, 2006, "잘못된 JWT입니다."),
 
     // produce(2100-2199)
 
