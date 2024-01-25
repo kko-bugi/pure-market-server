@@ -64,7 +64,9 @@ class UserServiceTest {
     public void login() throws BaseException {
 
         // given
-        signup();
+        SignupRequest signupRequest = new SignupRequest("nickname", "id", "pw", "pw", "01012345678");
+        userService.signup(signupRequest);
+
         LoginRequest loginRequest = new LoginRequest("id", "pw");
 
         // when
