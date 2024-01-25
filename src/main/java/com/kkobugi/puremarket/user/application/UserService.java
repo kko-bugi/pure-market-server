@@ -108,6 +108,7 @@ public class UserService {
         }
     }
 
+    // 회원 탈퇴
     @Transactional(rollbackFor = Exception.class)
     public void signout(Long userIdx) throws BaseException {
         try{

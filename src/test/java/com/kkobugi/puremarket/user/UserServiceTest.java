@@ -154,7 +154,7 @@ class UserServiceTest {
         User user = userRepository.findByLoginId("id").orElseThrow(() -> new BaseException(INVALID_LOGIN_ID));
 
         // accessToken값을 넣어주기 위해 mockMVC로 Http Request 보내기
-        MvcResult loginResponse = mockMvc.perform(MockMvcRequestBuilders.post(RequestURI.user+"/login")
+        MvcResult loginResponse = mockMvc.perform(post(RequestURI.user+"/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"loginId\":\"id\", \"password\":\"pw\"}"))
                         .andReturn();
@@ -162,6 +162,7 @@ class UserServiceTest {
         String responseBody = loginResponse.getResponse().getContentAsString();
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonNode = mapper.readTree(responseBody);
+
         JsonNode resultNode = jsonNode.get("result");
         String accessToken = resultNode.get("accessToken").asText();
 
@@ -170,5 +171,45 @@ class UserServiceTest {
 
         // then
         assertEquals(INACTIVE, user.getStatus());
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("accessToken 재발급")
+    public void reissueToken() throws Exception {
+
+        // given
+        // 회원가입
+        SignupRequest signupRequest = new SignupRequest("nickname", "id", "pw", "pw", "01012345678");
+        userService.signup(signupRequest);
+
+        // 로그인
+        MvcResult loginResponse = mockMvc.perform(post(RequestURI.user+"/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"loginId\":\"id\", \"password\":\"pw\"}"))
+                        .andReturn();
+        String loginResponseBody = loginResponse.getResponse().getContentAsString();
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode loginJsonNode = mapper.readTree(loginResponseBody);
+
+        JsonNode loginResultNode = loginJsonNode.get("result");
+        String accessToken = loginResultNode.get("accessToken").asText();
+        String refreshToken = loginResultNode.get("refreshToken").asText();
+
+        // when
+        MvcResult reissueResponse = mockMvc.perform(post(RequestURI.user+"/reissue-token")
+                        .header("Authorization", "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(String.format("{\"loginId\":\"id\", \"refreshToken\":\"%s\"}", refreshToken)))
+                        .andReturn();
+
+        // then
+        String reissueResponseBody = reissueResponse.getResponse().getContentAsString();
+        JsonNode reissueResponseJsonNode = mapper.readTree(reissueResponseBody);
+        JsonNode reissueResultNode = reissueResponseJsonNode.get("result");
+        String newAccessToken = reissueResultNode.get("accessToken").asText();
+
+        assertNotNull(newAccessToken);
+        assertNotEquals(accessToken, newAccessToken);
     }
 }
