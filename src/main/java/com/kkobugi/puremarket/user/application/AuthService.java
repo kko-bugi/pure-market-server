@@ -18,9 +18,9 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import java.time.Duration;
 import java.util.Date;
 
+import static com.kkobugi.puremarket.common.constants.Constant.INACTIVE;
 import static com.kkobugi.puremarket.common.constants.Constant.LOGOUT;
-import static com.kkobugi.puremarket.common.enums.BaseResponseStatus.DATABASE_ERROR;
-import static com.kkobugi.puremarket.common.enums.BaseResponseStatus.INVALID_REFRESH_TOKEN;
+import static com.kkobugi.puremarket.common.enums.BaseResponseStatus.*;
 
 /**
  * Token 생성, 분석 및 유효성 검사
@@ -69,6 +69,13 @@ public class AuthService {
                 .compact();
         redisTemplate.opsForValue().set("REFRESH_TOKEN:"+user.getLoginId(), refreshToken, Duration.ofMillis(refreshTokenExpireTime));
         return refreshToken;
+    }
+
+    // userIdx 추출
+    public Long getUserIdx() throws BaseException {
+        String token = getTokenFromRequest();
+        if (token == null) throw new BaseException(NULL_ACCESS_TOKEN);
+        return getUserIdxFromToken(token);
     }
 
     // 토큰 추출
@@ -132,15 +139,33 @@ public class AuthService {
     public void logout(User user) throws BaseException {
         // 토큰 유효성 검사
         String accessToken = getTokenFromRequest();
-        if (!validateToken(accessToken)) throw new BaseException(BaseResponseStatus.INVALID_TOKEN);
+        if (!validateToken(accessToken)) throw new BaseException(BaseResponseStatus.INVALID_ACCESS_TOKEN);
 
-        // redis에서 refreshToken 삭제
-        String redisKey = "REFRESH_TOKEN:"+user.getLoginId();
-        if(redisTemplate.opsForValue().get(redisKey) != null) redisTemplate.delete(redisKey);
+        deleteFromRedis(user);
+        registerBlackList(accessToken, LOGOUT);
+    }
 
-        // accessToken expirationTime 동안 로그아웃 상태로 redis에 저장
+    // 회원 탈퇴
+    public void signout(User user) throws BaseException {
+        // 토큰 유효성 검사
+        String accessToken = getTokenFromRequest();
+        if (!validateToken(accessToken)) throw new BaseException(BaseResponseStatus.INVALID_ACCESS_TOKEN);
+
+        deleteFromRedis(user);
+        registerBlackList(accessToken, INACTIVE);
+    }
+
+    // redis에 blacklist 등록
+    private void registerBlackList(String accessToken, String status) {
+        // accessToken expirationTime 동안 staus로 redis에 저장
         Long expirationTime = getExpirationTime(accessToken);
-        redisTemplate.opsForValue().set(accessToken, LOGOUT, Duration.ofMillis(expirationTime));
+        redisTemplate.opsForValue().set(accessToken, status, Duration.ofMillis(expirationTime));
+    }
+
+    // redis에서 refreshToken 삭제
+    private void deleteFromRedis(User user) {
+        String redisKey = "REFRESH_TOKEN:"+ user.getLoginId();
+        if(redisTemplate.opsForValue().get(redisKey) != null) redisTemplate.delete(redisKey);
     }
 
     // 토큰 유효시간

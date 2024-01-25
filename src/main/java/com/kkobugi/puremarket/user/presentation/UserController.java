@@ -56,8 +56,7 @@ public class UserController {
     @PatchMapping("/logout")
     public BaseResponse<?> logout() {
         try{
-            Long userIdx = authService.getUserIdxFromToken(authService.getTokenFromRequest());
-            userService.logout(userIdx);
+            userService.logout(authService.getUserIdx());
             return new BaseResponse<>(SUCCESS);
         } catch (BaseException e){
             return new BaseResponse<>(e.getStatus());
@@ -92,6 +91,17 @@ public class UserController {
         try{
             return new BaseResponse<>(userService.reissueToken(reissueTokenRequest));
         }catch (BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    // 회원 탈퇴
+    @PatchMapping("/signout")
+    public BaseResponse<?> signout() {
+        try{
+            userService.signout(authService.getUserIdx());
+            return new BaseResponse<>(SUCCESS);
+        } catch (BaseException e){
             return new BaseResponse<>(e.getStatus());
         }
     }

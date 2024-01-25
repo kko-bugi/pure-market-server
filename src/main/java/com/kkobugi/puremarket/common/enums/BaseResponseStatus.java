@@ -13,14 +13,14 @@ public enum BaseResponseStatus {
      * 2000: Request 오류
      */
     // users(2000-2099)
-    INVALID_USER_IDX(false, 2000, "잘못된 user Idx입니다."),
-    DUPLICATED_LOGIN_ID(false, 2001, "이미 사용중인 아이디입니다."),
-    DUPLICATED_NICKNAME(false, 2002, "이미 사용중인 닉네임입니다."),
-    UNMATCHED_PASSWORD(false, 2003, "비밀번호가 일치하지 않습니다."),
-    INVALID_PASSWORD(false, 2004, "비민번호가 잘못되었습니다."),
-    INVALID_LOGIN_ID(false, 2005, "잘못된 아이디입니다."),
-    INVALID_TOKEN(false, 2006, "잘못된 JWT입니다."),
-    INVALID_REFRESH_TOKEN(false, 2007, "잘못된 RefreshToken 입니다."),
+    DUPLICATED_LOGIN_ID(false, 2000, "이미 사용중인 아이디입니다."),
+    DUPLICATED_NICKNAME(false, 2001, "이미 사용중인 닉네임입니다."),
+    UNMATCHED_PASSWORD(false, 2002, "비밀번호가 일치하지 않습니다."),
+    INVALID_PASSWORD(false, 2003, "비밀번호가 잘못되었습니다."),
+    INVALID_LOGIN_ID(false, 2004, "잘못된 아이디입니다."),
+    INVALID_ACCESS_TOKEN(false, 2005, "잘못된 AccessToken 입니다."),
+    INVALID_REFRESH_TOKEN(false, 2006, "잘못된 RefreshToken 입니다."),
+    NULL_ACCESS_TOKEN(false, 2007, "AccessToken을 입력해주세요."),
 
     // produce(2100-2199)
 
@@ -35,6 +35,8 @@ public enum BaseResponseStatus {
      * 3000: Response 오류
      */
     // users(3000~3099)
+    INVALID_USER_IDX(false, 3000, "해당 user를 찾을 수 없습니다."),
+
 
     // produce(3100-3199)
 
