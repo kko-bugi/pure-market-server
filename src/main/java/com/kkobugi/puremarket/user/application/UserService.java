@@ -78,13 +78,14 @@ public class UserService {
     }
 
     // 로그아웃
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void logout(Long userIdx) throws BaseException {
         try {
             User user = userRepository.findByUserIdxAndStatusEquals(userIdx, ACTIVE)
                     .orElseThrow(() -> new BaseException(INVALID_USER_IDX));
             authService.logout(user);
             user.logout(); // LOGOUT
+            userRepository.save(user);
         } catch (BaseException e) {
             throw e;
         } catch (Exception e) {
@@ -93,12 +94,28 @@ public class UserService {
     }
 
     // accessToken 재발급
+    @Transactional(rollbackFor = Exception.class)
     public JwtDto reissueToken(ReissueTokenRequest reissueTokenRequest) throws BaseException {
         try {
             User user = userRepository.findByLoginIdAndStatusEquals(reissueTokenRequest.loginId(), ACTIVE)
                     .orElseThrow(() -> new BaseException(INVALID_LOGIN_ID));
             authService.validateRefreshToken(reissueTokenRequest);
             return authService.generateToken(user);
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void signout(Long userIdx) throws BaseException {
+        try{
+            User user = userRepository.findByUserIdxAndStatusEquals(userIdx, ACTIVE)
+                    .orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            authService.signout(user);
+            user.signout(); // INACTIVE
+            userRepository.save(user);
         } catch (BaseException e) {
             throw e;
         } catch (Exception e) {
