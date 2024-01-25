@@ -23,6 +23,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.kkobugi.puremarket.common.constants.Constant.INACTIVE;
+import static com.kkobugi.puremarket.common.constants.Constant.LOGOUT;
 import static com.kkobugi.puremarket.common.enums.BaseResponseStatus.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -109,6 +110,37 @@ class UserServiceTest {
 
     @Test
     @Transactional
+    @DisplayName("로그아웃")
+    public void logout() throws Exception {
+
+        // given
+        SignupRequest signupRequest = new SignupRequest("nickname", "id", "pw", "pw", "01012345678");
+        userService.signup(signupRequest);
+
+        // when
+        User user = userRepository.findByLoginId("id").orElseThrow(() -> new BaseException(INVALID_LOGIN_ID));
+
+        // accessToken 값을 넣어주기 위해 mockMVC로 Http Request 보내기
+        MvcResult loginResponse = mockMvc.perform(MockMvcRequestBuilders.post(RequestURI.user+"/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"loginId\":\"id\", \"password\":\"pw\"}"))
+                .andReturn();
+
+        String responseBody = loginResponse.getResponse().getContentAsString();
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode jsonNode = mapper.readTree(responseBody);
+        JsonNode resultNode = jsonNode.get("result");
+        String accessToken = resultNode.get("accessToken").asText();
+
+        mockMvc.perform(patch(RequestURI.user+"/logout")
+                .header("Authorization", "Bearer " + accessToken));
+
+        // then
+        assertEquals(LOGOUT, user.getStatus());
+    }
+
+    @Test
+    @Transactional
     @DisplayName("회원 탈퇴")
     public void signout() throws Exception {
 
@@ -137,5 +169,4 @@ class UserServiceTest {
         // then
         assertEquals(INACTIVE, user.getStatus());
     }
-
 }
