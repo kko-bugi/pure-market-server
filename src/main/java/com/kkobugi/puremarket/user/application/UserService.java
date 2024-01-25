@@ -28,7 +28,6 @@ public class UserService {
     public JwtDto signup(SignupRequest signupRequest) throws BaseException {
         try {
             if(checkLoginId(signupRequest.loginId())) throw new BaseException(DUPLICATED_LOGIN_ID);
-            if(checkNickname(signupRequest.nickname())) throw new BaseException(DUPLICATED_NICKNAME);
             if(!signupRequest.password().equals(signupRequest.passwordCheck())) throw new BaseException(UNMATCHED_PASSWORD);
 
             User newUser = signupRequest.toUser(encoder.encode(signupRequest.password()));
@@ -47,10 +46,9 @@ public class UserService {
     }
 
     // 닉네임 중복 체크
-    public boolean checkNickname(String nickname) {
-        return userRepository.existsByNickname(nickname);
+    public void validateNickname(String nickname) throws BaseException {
+        if(userRepository.existsByNickname(nickname)) throw new BaseException(DUPLICATED_NICKNAME);
     }
-
 
     // 로그인
     @Transactional(rollbackFor = Exception.class)

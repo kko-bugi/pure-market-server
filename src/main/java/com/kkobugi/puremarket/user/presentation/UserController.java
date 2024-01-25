@@ -5,8 +5,8 @@ import com.kkobugi.puremarket.common.BaseResponse;
 import com.kkobugi.puremarket.user.application.AuthService;
 import com.kkobugi.puremarket.user.application.UserService;
 import com.kkobugi.puremarket.user.domain.dto.LoginRequest;
+import com.kkobugi.puremarket.user.domain.dto.NicknameRequest;
 import com.kkobugi.puremarket.user.domain.dto.SignupRequest;
-import com.kkobugi.puremarket.user.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -60,6 +60,17 @@ public class UserController {
         try{
             Long userIdx = authService.getUserIdxFromToken(authService.getTokenFromRequest());
             userService.logout(userIdx);
+            return new BaseResponse<>(SUCCESS);
+        } catch (BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    // 닉네임 중복 체크
+    @PostMapping("/nickname")
+    public BaseResponse<?> validateNickname(@RequestBody NicknameRequest nicknameRequest) {
+        try {
+            userService.validateNickname(nicknameRequest.nickname());
             return new BaseResponse<>(SUCCESS);
         } catch (BaseException e){
             return new BaseResponse<>(e.getStatus());
