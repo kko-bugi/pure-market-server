@@ -20,6 +20,7 @@ public enum BaseResponseStatus {
     INVALID_PASSWORD(false, 2004, "비민번호가 잘못되었습니다."),
     INVALID_LOGIN_ID(false, 2005, "잘못된 아이디입니다."),
     INVALID_TOKEN(false, 2006, "잘못된 JWT입니다."),
+    INVALID_REFRESH_TOKEN(false, 2007, "잘못된 RefreshToken 입니다."),
 
     // produce(2100-2199)
 

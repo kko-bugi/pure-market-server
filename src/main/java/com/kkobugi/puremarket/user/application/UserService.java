@@ -91,4 +91,18 @@ public class UserService {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+    // accessToken 재발급
+    public JwtDto reissueToken(ReissueTokenRequest reissueTokenRequest) throws BaseException {
+        try {
+            User user = userRepository.findByLoginIdAndStatusEquals(reissueTokenRequest.loginId(), ACTIVE)
+                    .orElseThrow(() -> new BaseException(INVALID_LOGIN_ID));
+            authService.validateRefreshToken(reissueTokenRequest);
+            return authService.generateToken(user);
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 }

@@ -4,10 +4,7 @@ import com.kkobugi.puremarket.common.BaseException;
 import com.kkobugi.puremarket.common.BaseResponse;
 import com.kkobugi.puremarket.user.application.AuthService;
 import com.kkobugi.puremarket.user.application.UserService;
-import com.kkobugi.puremarket.user.domain.dto.LoginIdRequest;
-import com.kkobugi.puremarket.user.domain.dto.LoginRequest;
-import com.kkobugi.puremarket.user.domain.dto.NicknameRequest;
-import com.kkobugi.puremarket.user.domain.dto.SignupRequest;
+import com.kkobugi.puremarket.user.domain.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -80,11 +77,21 @@ public class UserController {
 
     // 아이디 중복 체크
     @PostMapping("/loginId")
-    public BaseResponse<?> validateloginId(@RequestBody LoginIdRequest loginIdRequest) {
+    public BaseResponse<?> validateLoginId(@RequestBody LoginIdRequest loginIdRequest) {
         try {
             userService.validateLoginId(loginIdRequest.loginId());
             return new BaseResponse<>(SUCCESS);
         } catch (BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    // accessToken 재발급
+    @PostMapping("/reissue-token")
+    public BaseResponse<?> reissueToken(@RequestBody ReissueTokenRequest reissueTokenRequest) {
+        try{
+            return new BaseResponse<>(userService.reissueToken(reissueTokenRequest));
+        }catch (BaseException e){
             return new BaseResponse<>(e.getStatus());
         }
     }

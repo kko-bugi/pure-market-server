@@ -3,6 +3,7 @@ package com.kkobugi.puremarket.user.application;
 import com.kkobugi.puremarket.common.BaseException;
 import com.kkobugi.puremarket.common.enums.BaseResponseStatus;
 import com.kkobugi.puremarket.user.domain.dto.JwtDto;
+import com.kkobugi.puremarket.user.domain.dto.ReissueTokenRequest;
 import com.kkobugi.puremarket.user.domain.entity.User;
 import io.jsonwebtoken.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,6 +19,8 @@ import java.time.Duration;
 import java.util.Date;
 
 import static com.kkobugi.puremarket.common.constants.Constant.LOGOUT;
+import static com.kkobugi.puremarket.common.enums.BaseResponseStatus.DATABASE_ERROR;
+import static com.kkobugi.puremarket.common.enums.BaseResponseStatus.INVALID_REFRESH_TOKEN;
 
 /**
  * Token 생성, 분석 및 유효성 검사
@@ -144,5 +147,20 @@ public class AuthService {
     public Long getExpirationTime(String token) {
         Date accessTokenExpirationTime = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getExpiration();
         return accessTokenExpirationTime.getTime() - (new Date()).getTime();
+    }
+
+    // refreshToken 유효성 체크
+    public void validateRefreshToken(ReissueTokenRequest reissueTokenRequest) throws BaseException {
+        try {
+            String refreshTokenFromRequest = reissueTokenRequest.refreshToken();
+            if (refreshTokenFromRequest == null || refreshTokenFromRequest.isEmpty())
+                throw new BaseException(INVALID_REFRESH_TOKEN);
+
+            String refreshTokenFromRedis = redisTemplate.opsForValue().get("REFRESH_TOKEN:"+reissueTokenRequest.loginId());
+            if (!refreshTokenFromRequest.equals(refreshTokenFromRedis))
+                throw new BaseException(INVALID_REFRESH_TOKEN);
+        } catch (Exception e) {
+            throw new BaseException(DATABASE_ERROR);
+        }
     }
 }
