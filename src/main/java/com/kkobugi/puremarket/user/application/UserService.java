@@ -27,7 +27,6 @@ public class UserService {
     @Transactional(rollbackFor = Exception.class)
     public JwtDto signup(SignupRequest signupRequest) throws BaseException {
         try {
-            if(checkLoginId(signupRequest.loginId())) throw new BaseException(DUPLICATED_LOGIN_ID);
             if(!signupRequest.password().equals(signupRequest.passwordCheck())) throw new BaseException(UNMATCHED_PASSWORD);
 
             User newUser = signupRequest.toUser(encoder.encode(signupRequest.password()));
@@ -40,9 +39,10 @@ public class UserService {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
     // 아이디 중복 체크
-    public boolean checkLoginId(String loginId) {
-        return userRepository.existsByLoginId(loginId);
+    public void validateLoginId(String loginId) throws BaseException {
+        if(userRepository.existsByLoginId(loginId)) throw new BaseException(DUPLICATED_LOGIN_ID);
     }
 
     // 닉네임 중복 체크

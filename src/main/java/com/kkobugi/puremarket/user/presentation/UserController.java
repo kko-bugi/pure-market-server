@@ -4,6 +4,7 @@ import com.kkobugi.puremarket.common.BaseException;
 import com.kkobugi.puremarket.common.BaseResponse;
 import com.kkobugi.puremarket.user.application.AuthService;
 import com.kkobugi.puremarket.user.application.UserService;
+import com.kkobugi.puremarket.user.domain.dto.LoginIdRequest;
 import com.kkobugi.puremarket.user.domain.dto.LoginRequest;
 import com.kkobugi.puremarket.user.domain.dto.NicknameRequest;
 import com.kkobugi.puremarket.user.domain.dto.SignupRequest;
@@ -71,6 +72,17 @@ public class UserController {
     public BaseResponse<?> validateNickname(@RequestBody NicknameRequest nicknameRequest) {
         try {
             userService.validateNickname(nicknameRequest.nickname());
+            return new BaseResponse<>(SUCCESS);
+        } catch (BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    // 아이디 중복 체크
+    @PostMapping("/loginId")
+    public BaseResponse<?> validateloginId(@RequestBody LoginIdRequest loginIdRequest) {
+        try {
+            userService.validateLoginId(loginIdRequest.loginId());
             return new BaseResponse<>(SUCCESS);
         } catch (BaseException e){
             return new BaseResponse<>(e.getStatus());
