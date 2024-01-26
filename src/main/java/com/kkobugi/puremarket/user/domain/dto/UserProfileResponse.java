@@ -10,19 +10,22 @@ public record UserProfileResponse(
         List<Recipe> recipeList,
         List<Giveaway> giveawayList) {
     public record Produce(
+            Long produceIdx,
             String title,
             String produceImage) {
             //LocalDate createdDate) {
     }
 
     public record Recipe(
+            Long recipeIdx,
             String title,
-            String RecipeImage) {
+            String recipeImage) {
             //LocalDate createdDate) {
     }
 
     public record Giveaway(
+            Long giveawayIdx,
             String title,
-            String GiveawayImage) {
+            String giveawayImage) {
     }
 }

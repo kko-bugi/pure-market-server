@@ -141,6 +141,7 @@ public class UserService {
             List<UserProfileResponse.Produce> produceList = produceRepository.findTop4ByUserAndStatusEqualsOrderByCreatedDateDesc(user, ACTIVE)
                     .stream()
                     .map(produce -> new UserProfileResponse.Produce(
+                            produce.getProduceIdx(),
                             produce.getTitle(),
                             produce.getProduceImage()))
                     .collect(Collectors.toList());
@@ -148,6 +149,7 @@ public class UserService {
             List<UserProfileResponse.Recipe> recipeList = recipeRepository.findTop4ByUserAndStatusEqualsOrderByCreatedDateDesc(user, ACTIVE)
                     .stream()
                     .map(recipe -> new UserProfileResponse.Recipe(
+                            recipe.getRecipeIdx(),
                             recipe.getTitle(),
                             recipe.getRecipeImage()))
                     .collect(Collectors.toList());
@@ -155,6 +157,7 @@ public class UserService {
             List<UserProfileResponse.Giveaway> giveawayList = giveawayRepository.findTop4ByUserAndStatusEqualsOrderByCreatedDateDesc(user, ACTIVE)
                     .stream()
                     .map(giveaway -> new UserProfileResponse.Giveaway(
+                            giveaway.getGiveawayIdx(),
                             giveaway.getTitle(),
                             giveaway.getGiveawayImage()))
                     .collect(Collectors.toList());
