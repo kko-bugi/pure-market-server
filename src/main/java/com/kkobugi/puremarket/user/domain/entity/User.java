@@ -29,6 +29,7 @@ public class User extends BaseEntity {
     private String contact;
 
     //TODO: 프로필 이미지 추가
+    private String profileImage;
 
     @Builder
     public User(String nickname, String loginId, String password, String contact) {

@@ -90,7 +90,7 @@ public class UserController {
     public BaseResponse<?> reissueToken(@RequestBody ReissueTokenRequest reissueTokenRequest) {
         try{
             return new BaseResponse<>(userService.reissueToken(reissueTokenRequest));
-        }catch (BaseException e){
+        } catch (BaseException e){
             return new BaseResponse<>(e.getStatus());
         }
     }
@@ -101,6 +101,16 @@ public class UserController {
         try{
             userService.signout(authService.getUserIdx());
             return new BaseResponse<>(SUCCESS);
+        } catch (BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    // 마이페이지 조회
+    @GetMapping("/my-page")
+    public BaseResponse<?> getMyPage() {
+        try{
+            return new BaseResponse<>(userService.getMyPage());
         } catch (BaseException e){
             return new BaseResponse<>(e.getStatus());
         }

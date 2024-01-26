@@ -1,6 +1,9 @@
 package com.kkobugi.puremarket.user.application;
 
 import com.kkobugi.puremarket.common.BaseException;
+import com.kkobugi.puremarket.giveaway.repository.GiveawayRepository;
+import com.kkobugi.puremarket.produce.repository.ProduceRepository;
+import com.kkobugi.puremarket.recipe.repository.RecipeRepository;
 import com.kkobugi.puremarket.user.domain.dto.*;
 import com.kkobugi.puremarket.user.domain.entity.User;
 import com.kkobugi.puremarket.user.repository.UserRepository;
@@ -10,7 +13,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.kkobugi.puremarket.common.constants.Constant.ACTIVE;
 import static com.kkobugi.puremarket.common.enums.BaseResponseStatus.*;
@@ -22,6 +27,9 @@ public class UserService {
     private final BCryptPasswordEncoder encoder;
     private final UserRepository userRepository;
     private final AuthService authService;
+    private final ProduceRepository produceRepository;
+    private final RecipeRepository recipeRepository;
+    private final GiveawayRepository giveawayRepository;
 
     // 회원가입
     @Transactional(rollbackFor = Exception.class)
@@ -117,6 +125,41 @@ public class UserService {
             authService.signout(user);
             user.signout(); // INACTIVE
             userRepository.save(user);
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    // 마이페이지 조회
+    public UserProfileResponse getMyPage() throws BaseException {
+        try {
+            Long userIdx = authService.getUserIdx();
+            User user = userRepository.findByUserIdxAndStatusEquals(userIdx, ACTIVE).orElseThrow(() -> new BaseException(INVALID_LOGIN_ID));
+
+            List<UserProfileResponse.Produce> produceList = produceRepository.findTop4ByUserAndStatusEqualsOrderByCreatedDateDesc(user, ACTIVE)
+                    .stream()
+                    .map(produce -> new UserProfileResponse.Produce(
+                            produce.getTitle(),
+                            produce.getProduceImage()))
+                    .collect(Collectors.toList());
+
+            List<UserProfileResponse.Recipe> recipeList = recipeRepository.findTop4ByUserAndStatusEqualsOrderByCreatedDateDesc(user, ACTIVE)
+                    .stream()
+                    .map(recipe -> new UserProfileResponse.Recipe(
+                            recipe.getTitle(),
+                            recipe.getRecipeImage()))
+                    .collect(Collectors.toList());
+
+            List<UserProfileResponse.Giveaway> giveawayList = giveawayRepository.findTop4ByUserAndStatusEqualsOrderByCreatedDateDesc(user, ACTIVE)
+                    .stream()
+                    .map(giveaway -> new UserProfileResponse.Giveaway(
+                            giveaway.getTitle(),
+                            giveaway.getGiveawayImage()))
+                    .collect(Collectors.toList());
+
+            return new UserProfileResponse(user.getNickname(), user.getProfileImage(), produceList, recipeList, giveawayList);
         } catch (BaseException e) {
             throw e;
         } catch (Exception e) {

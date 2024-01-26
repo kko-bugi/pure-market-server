@@ -1,4 +1,4 @@
-package com.kkobugi.puremarket.produce.entity;
+package com.kkobugi.puremarket.produce.domain.entity;
 
 import com.kkobugi.puremarket.common.BaseEntity;
 import com.kkobugi.puremarket.user.domain.entity.User;
