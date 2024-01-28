@@ -34,7 +34,7 @@ public class UserController {
             @ApiResponse(responseCode = "2001", description = "아이디 중복"),
             @ApiResponse(responseCode = "2002", description = "닉네임 중복"),
             @ApiResponse(responseCode = "2003", description = "비밀번호 불일치")})
-    public BaseResponse<?> signup(SignupRequest signupRequest) {
+    public BaseResponse<?> signup(SignupRequest signupRequest) { // 이미지 업로드 위해 @RequestBody 제거
         try {
             return new BaseResponse<>(userService.signup(signupRequest));
         } catch(BaseException e) {
