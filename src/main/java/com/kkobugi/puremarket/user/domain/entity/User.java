@@ -26,17 +26,20 @@ public class User extends BaseEntity {
 
     @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false)
     private String contact;
 
-    //TODO: 프로필 이미지 추가
+    @Column(nullable = false)
     private String profileImage;
 
     @Builder
-    public User(String nickname, String loginId, String password, String contact) {
+    public User(String nickname, String loginId, String password, String contact, String profileImage) {
         this.nickname = nickname;
         this.loginId = loginId;
         this.password = password;
         this.contact = contact;
+        this.profileImage = profileImage;
     }
 
     public void login() {
