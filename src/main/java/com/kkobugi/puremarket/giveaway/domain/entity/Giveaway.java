@@ -16,7 +16,7 @@ public class Giveaway extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long GiveawayIdx;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "userIdx")
     private User user;
 
@@ -25,5 +25,7 @@ public class Giveaway extends BaseEntity {
 
     @Column(nullable = false)
     private String content;
+
+    @Column(nullable = false)
     private String giveawayImage;
 }

@@ -1,6 +1,7 @@
 package com.kkobugi.puremarket.user.application;
 
 import com.kkobugi.puremarket.common.BaseException;
+import com.kkobugi.puremarket.common.gcs.GCSService;
 import com.kkobugi.puremarket.giveaway.repository.GiveawayRepository;
 import com.kkobugi.puremarket.produce.repository.ProduceRepository;
 import com.kkobugi.puremarket.recipe.repository.RecipeRepository;
@@ -9,6 +10,7 @@ import com.kkobugi.puremarket.user.domain.entity.User;
 import com.kkobugi.puremarket.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +32,10 @@ public class UserService {
     private final ProduceRepository produceRepository;
     private final RecipeRepository recipeRepository;
     private final GiveawayRepository giveawayRepository;
+    private final GCSService gcsService;
+
+    @Value("${spring.cloud.gcp.storage.bucket}")
+    private String bucketName;
 
     // 회원가입
     @Transactional(rollbackFor = Exception.class)
@@ -37,7 +43,10 @@ public class UserService {
         try {
             if(!signupRequest.password().equals(signupRequest.passwordCheck())) throw new BaseException(UNMATCHED_PASSWORD);
 
-            User newUser = signupRequest.toUser(encoder.encode(signupRequest.password()));
+            String fullPath = gcsService.uploadImage("users", signupRequest.profileImage()); // 프로필 이미지 업로드
+            String profileImageUrl = "https://storage.googleapis.com/"+bucketName+"/"+fullPath;
+
+            User newUser = signupRequest.toUser(encoder.encode(signupRequest.password()), profileImageUrl);
             userRepository.save(newUser);
             return authService.generateToken(newUser);
         } catch (BaseException e) {
@@ -143,7 +152,8 @@ public class UserService {
                     .map(produce -> new UserProfileResponse.Produce(
                             produce.getProduceIdx(),
                             produce.getTitle(),
-                            produce.getProduceImage()))
+                            produce.getProduceImage(),
+                            produce.getCreatedDate()))
                     .collect(Collectors.toList());
 
             List<UserProfileResponse.Recipe> recipeList = recipeRepository.findTop4ByUserAndStatusEqualsOrderByCreatedDateDesc(user, ACTIVE)
@@ -151,7 +161,8 @@ public class UserService {
                     .map(recipe -> new UserProfileResponse.Recipe(
                             recipe.getRecipeIdx(),
                             recipe.getTitle(),
-                            recipe.getRecipeImage()))
+                            recipe.getRecipeImage(),
+                            recipe.getCreatedDate()))
                     .collect(Collectors.toList());
 
             List<UserProfileResponse.Giveaway> giveawayList = giveawayRepository.findTop4ByUserAndStatusEqualsOrderByCreatedDateDesc(user, ACTIVE)
@@ -159,7 +170,8 @@ public class UserService {
                     .map(giveaway -> new UserProfileResponse.Giveaway(
                             giveaway.getGiveawayIdx(),
                             giveaway.getTitle(),
-                            giveaway.getGiveawayImage()))
+                            giveaway.getGiveawayImage(),
+                            giveaway.getCreatedDate()))
                     .collect(Collectors.toList());
 
             return new UserProfileResponse(user.getNickname(), user.getProfileImage(), produceList, recipeList, giveawayList);

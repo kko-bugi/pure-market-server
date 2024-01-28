@@ -12,20 +12,21 @@ public record UserProfileResponse(
     public record Produce(
             Long produceIdx,
             String title,
-            String produceImage) {
-            //LocalDate createdDate) {
+            String produceImage,
+            LocalDate createdDate) {
     }
 
     public record Recipe(
             Long recipeIdx,
             String title,
-            String recipeImage) {
-            //LocalDate createdDate) {
+            String recipeImage,
+            LocalDate createdDate) {
     }
 
     public record Giveaway(
             Long giveawayIdx,
             String title,
-            String giveawayImage) {
+            String giveawayImage,
+            LocalDate createdDate) {
     }
 }

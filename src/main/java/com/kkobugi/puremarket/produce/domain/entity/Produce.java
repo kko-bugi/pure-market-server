@@ -28,5 +28,7 @@ public class Produce extends BaseEntity {
 
     @Column(nullable = false)
     private Integer price;
+
+    @Column(nullable = false)
     private String produceImage;
 }

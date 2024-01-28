@@ -12,12 +12,14 @@ public record SignupRequest(
         String passwordCheck,
         String contact,
         MultipartFile profileImage) {
-    public User toUser(String encodedPassword) {
+
+    public User toUser(String encodedPassword, String imageUrl) {
         return User.builder()
                 .nickname(this.nickname)
                 .loginId(this.loginId)
                 .password(encodedPassword)
                 .contact(this.contact)
+                .profileImage(imageUrl)
                 .build();
     }
 }
