@@ -21,19 +21,15 @@ public class GCSService {
 
     // 이미지 업로드
     @SuppressWarnings("deprecation")
-    public BlobInfo uploadImage(MultipartFile multipartFile) throws IOException {
+    public String uploadImage(String folderName, MultipartFile multipartFile) throws IOException {
 
         String fileName = UUID.randomUUID() + multipartFile.getOriginalFilename();
+        String fullPath = folderName+"/"+fileName;
         String type = multipartFile.getContentType();
 
-        return storage.create(
-                BlobInfo.newBuilder(bucketName, fileName)
+        storage.create(BlobInfo.newBuilder(bucketName, fullPath)
                         .setContentType(type)
-                        .build(),
-                multipartFile.getInputStream());
-//        InputStream content = new ByteArrayInputStream(multipartFile.getBytes());
-//        BlobId blobId = BlobId.of(bucketName, fileName);
-//        BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType(type).build();
-//        Blob blob = storage.create(blobInfo, content);
+                        .build(), multipartFile.getInputStream());
+        return fullPath;
     }
 }
