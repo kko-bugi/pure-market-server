@@ -20,7 +20,7 @@ import static com.kkobugi.puremarket.common.enums.BaseResponseStatus.SUCCESS;
 @RequiredArgsConstructor
 @SecurityRequirement(name = "Bearer")
 @RequestMapping(user)
-@Tag(name = "User", description = "User API")
+@Tag(name = "User", description = "유저 API")
 public class UserController {
 
     private final UserService userService;

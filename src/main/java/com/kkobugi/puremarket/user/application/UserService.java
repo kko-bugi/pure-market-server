@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 import static com.kkobugi.puremarket.common.constants.Constant.ACTIVE;
 import static com.kkobugi.puremarket.common.enums.BaseResponseStatus.*;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
