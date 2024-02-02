@@ -8,5 +8,6 @@ import java.util.List;
 
 public interface ProduceRepository extends JpaRepository<Produce, Long> {
     List<Produce> findTop4ByUserAndStatusEqualsOrderByCreatedDateDesc(User user, String status);
+    List<Produce> findByStatusEqualsOrderByCreatedDateDesc(String status);
 
 }
