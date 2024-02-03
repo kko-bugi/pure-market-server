@@ -126,7 +126,7 @@ public class UserService {
     // 회원 탈퇴
     @Transactional(rollbackFor = Exception.class)
     public void signout(Long userIdx) throws BaseException {
-        try{
+        try {
             User user = userRepository.findByUserIdxAndStatusEquals(userIdx, ACTIVE)
                     .orElseThrow(() -> new BaseException(INVALID_USER_IDX));
             authService.signout(user);
@@ -173,6 +173,20 @@ public class UserService {
                     .collect(Collectors.toList());
 
             return new UserProfileResponse(user.getNickname(), user.getProfileImage(), produceList, recipeList, giveawayList);
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    // 유저 프로필 조회
+    public ProfileResponse getProfile() throws BaseException {
+        try {
+            Long userIdx = authService.getUserIdxFromToken();
+            User user = userRepository.findByUserIdxAndStatusEquals(userIdx, ACTIVE).orElseThrow(() -> new BaseException(INVALID_LOGIN_ID));
+
+            return new ProfileResponse(user.getNickname(), user.getContact(), user.getProfileImage());
         } catch (BaseException e) {
             throw e;
         } catch (Exception e) {

@@ -115,4 +115,14 @@ public class UserController {
             return new BaseResponse<>(e.getStatus());
         }
     }
+
+    // 회원 정보 조회
+    @GetMapping("/profile")
+    public BaseResponse<?> getProfile() {
+        try{
+            return new BaseResponse<>(userService.getProfile());
+        } catch (BaseException e){
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
 }
