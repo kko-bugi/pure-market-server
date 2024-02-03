@@ -72,7 +72,7 @@ public class AuthService {
     }
 
     // userIdx 추출
-    public Long getUserIdx() throws BaseException {
+    public Long getUserIdxFromToken() throws BaseException {
         String token = getTokenFromRequest();
         if (token == null) throw new BaseException(NULL_ACCESS_TOKEN);
         return getUserIdxFromToken(token);
@@ -122,6 +122,7 @@ public class AuthService {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return true;
         } catch (SignatureException ex) {
+
             System.out.println("Invalid JWT signature");
         } catch (MalformedJwtException ex) {
             System.out.println("Invalid JWT token");

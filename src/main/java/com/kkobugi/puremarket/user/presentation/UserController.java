@@ -56,7 +56,7 @@ public class UserController {
     @PatchMapping("/logout")
     public BaseResponse<?> logout() {
         try{
-            userService.logout(authService.getUserIdx());
+            userService.logout(authService.getUserIdxFromToken());
             return new BaseResponse<>(SUCCESS);
         } catch (BaseException e){
             return new BaseResponse<>(e.getStatus());
@@ -99,7 +99,7 @@ public class UserController {
     @PatchMapping("/signout")
     public BaseResponse<?> signout() {
         try{
-            userService.signout(authService.getUserIdx());
+            userService.signout(authService.getUserIdxFromToken());
             return new BaseResponse<>(SUCCESS);
         } catch (BaseException e){
             return new BaseResponse<>(e.getStatus());

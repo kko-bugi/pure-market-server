@@ -9,7 +9,6 @@ import com.kkobugi.puremarket.user.domain.dto.*;
 import com.kkobugi.puremarket.user.domain.entity.User;
 import com.kkobugi.puremarket.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -143,7 +142,7 @@ public class UserService {
     // 마이페이지 조회
     public UserProfileResponse getMyPage() throws BaseException {
         try {
-            Long userIdx = authService.getUserIdx();
+            Long userIdx = authService.getUserIdxFromToken();
             User user = userRepository.findByUserIdxAndStatusEquals(userIdx, ACTIVE).orElseThrow(() -> new BaseException(INVALID_LOGIN_ID));
 
             List<UserProfileResponse.Produce> produceList = produceRepository.findTop4ByUserAndStatusEqualsOrderByCreatedDateDesc(user, ACTIVE)
