@@ -7,6 +7,7 @@ public record ProduceListResponse(List<ProduceDto> produceList) {
             Long produceIdx,
             String title,
             Integer price,
-            String produceImage) {
+            String produceImage,
+            String produceStatus) {
     }
 }
