@@ -4,13 +4,14 @@ import com.kkobugi.puremarket.common.BaseEntity;
 import com.kkobugi.puremarket.common.enums.IngredientType;
 import com.kkobugi.puremarket.recipe.domain.entity.Recipe;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DynamicInsert
 public class Ingredient extends BaseEntity {
     @Id

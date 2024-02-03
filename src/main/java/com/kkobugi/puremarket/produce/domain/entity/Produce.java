@@ -3,6 +3,7 @@ package com.kkobugi.puremarket.produce.domain.entity;
 import com.kkobugi.puremarket.common.BaseEntity;
 import com.kkobugi.puremarket.user.domain.entity.User;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +11,7 @@ import org.hibernate.annotations.DynamicInsert;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DynamicInsert
 public class Produce extends BaseEntity {
     @Id

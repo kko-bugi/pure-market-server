@@ -2,13 +2,14 @@ package com.kkobugi.puremarket.recipe.domain.entity;
 
 import com.kkobugi.puremarket.common.BaseEntity;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DynamicInsert
 public class RecipeDescription extends BaseEntity { // 레시피 상세
     @Id
