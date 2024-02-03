@@ -23,6 +23,7 @@ public enum BaseResponseStatus {
     NULL_ACCESS_TOKEN(false, 2007, "AccessToken을 입력해주세요."),
 
     // produce(2100-2199)
+    INVALID_PRODUCE_IDX(false, 2100, "잘못된 produce idx입니다."),
 
     // recipe(2200-2299)
 
