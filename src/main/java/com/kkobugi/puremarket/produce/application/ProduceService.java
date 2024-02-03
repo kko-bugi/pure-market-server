@@ -30,7 +30,8 @@ public class ProduceService {
                             produce.getProduceIdx(),
                             produce.getTitle(),
                             produce.getPrice(),
-                            produce.getProduceImage()))
+                            produce.getProduceImage(),
+                            produce.getStatus()))
                     .collect(Collectors.toList());
             if (produceList.isEmpty()) throw new BaseException(NULL_PRODUCE_LIST);
             return new ProduceListResponse(produceList);
