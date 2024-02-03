@@ -34,7 +34,8 @@ public class WebSecurityConfig {
                                 new AntPathRequestMatcher("/api/v1/users/login"),
                                 new AntPathRequestMatcher("/api/v1/users/signup"),
                                 new AntPathRequestMatcher("/api/v1/users/nickname"),
-                                new AntPathRequestMatcher("/api/v1/users/loginId")).permitAll()
+                                new AntPathRequestMatcher("/api/v1/users/loginId"),
+                                new AntPathRequestMatcher("/api/v1/users/reissue-token")).permitAll()
                         .anyRequest().authenticated()) //TODO: 마이페이지 접근 권한 설정 추가
                 .addFilterBefore(new JwtTokenFilter(authService, userService, redisTemplate), UsernamePasswordAuthenticationFilter.class) // 필터 통과
                 .build();

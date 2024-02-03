@@ -6,9 +6,7 @@ import com.kkobugi.puremarket.produce.application.ProduceService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static com.kkobugi.puremarket.common.constants.RequestURI.produce;
 
@@ -27,6 +25,16 @@ public class ProduceController {
     public BaseResponse<?> getProduceList() {
         try {
             return new BaseResponse<>(produceService.getProduceList());
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    // 판매글 상세 조회
+    @GetMapping("/{produceIdx}")
+    public BaseResponse<?> getProduceList(@PathVariable Long produceIdx) {
+        try {
+            return new BaseResponse<>(produceService.getProducePost(produceIdx));
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
