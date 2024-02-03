@@ -2,6 +2,7 @@ package com.kkobugi.puremarket.user.domain.entity;
 
 import com.kkobugi.puremarket.common.BaseEntity;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,7 +12,7 @@ import static com.kkobugi.puremarket.common.constants.Constant.*;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DynamicInsert
 public class User extends BaseEntity {
     @Id
