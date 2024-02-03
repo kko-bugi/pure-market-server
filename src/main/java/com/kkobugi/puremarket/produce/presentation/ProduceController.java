@@ -44,7 +44,7 @@ public class ProduceController {
 
     // 판매글 등록
     @PostMapping("")
-    public BaseResponse<?> postProduce(@RequestBody ProducePostRequest producePostRequest) {
+    public BaseResponse<?> postProduce(ProducePostRequest producePostRequest) {
         try {
             produceService.postProduce(producePostRequest);
             return new BaseResponse<>(SUCCESS);
