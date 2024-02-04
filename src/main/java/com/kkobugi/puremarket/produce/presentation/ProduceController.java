@@ -52,4 +52,15 @@ public class ProduceController {
             return new BaseResponse<>(e.getStatus());
         }
     }
+
+    // 판매 상태 변경
+    @PatchMapping("/{produceIdx}")
+    public BaseResponse<?> changeProduceStatus(@PathVariable Long produceIdx) {
+        try {
+            produceService.changeProduceStatus(produceIdx);
+            return new BaseResponse<>(SUCCESS);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
 }

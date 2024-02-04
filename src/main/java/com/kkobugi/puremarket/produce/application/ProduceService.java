@@ -13,11 +13,13 @@ import com.kkobugi.puremarket.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.kkobugi.puremarket.common.constants.Constant.ACTIVE;
+import static com.kkobugi.puremarket.common.constants.Constant.INACTIVE;
+import static com.kkobugi.puremarket.common.constants.Constant.Produces.FOR_SALE;
 import static com.kkobugi.puremarket.common.enums.BaseResponseStatus.*;
 
 @Service
@@ -32,10 +34,10 @@ public class ProduceService {
     private String bucketName;
 
     // 판매글 목록 조회
-    public ProduceListResponse getProduceList() throws BaseException { // TODO: 판매 상태에 따라 조회 수정 필요
+    public ProduceListResponse getProduceList() throws BaseException { // TODO: status=SOLD_OUT인 것도 조회
         try {
             // 판매 상태인 글 최신순으로 조회
-            List<ProduceListResponse.ProduceDto> produceList = produceRepository.findByStatusEqualsOrderByCreatedDateDesc(ACTIVE).stream()
+            List<ProduceListResponse.ProduceDto> produceList = produceRepository.findByStatusEqualsOrderByCreatedDateDesc(FOR_SALE).stream()
                     .map(produce -> new ProduceListResponse.ProduceDto(
                             produce.getProduceIdx(),
                             produce.getTitle(),
@@ -73,6 +75,7 @@ public class ProduceService {
     }
 
     // 판매글 등록
+    @Transactional(rollbackFor = Exception.class)
     public void postProduce(ProducePostRequest producePostRequest) throws BaseException {
         try {
             User writer = userRepository.findByUserIdx(authService.getUserIdxFromToken()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
@@ -85,6 +88,26 @@ public class ProduceService {
             String produceImageUrl = "https://storage.googleapis.com/"+bucketName+"/"+fullPath;
 
             Produce produce = new Produce(writer, producePostRequest.title(), producePostRequest.content(), producePostRequest.price(), produceImageUrl);
+            produce.setStatus(FOR_SALE);
+            produceRepository.save(produce);
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    // 판매 상태 변경
+    public void changeProduceStatus(Long produceIdx) throws BaseException {
+        try {
+            User user = userRepository.findByUserIdx(authService.getUserIdxFromToken()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            Produce produce = produceRepository.findById(produceIdx).orElseThrow(() -> new BaseException(INVALID_PRODUCE_IDX));
+
+            // validation
+            if (!produce.getUser().equals(user)) throw new BaseException(NO_PRODUCE_WRITER);
+            if (produce.getStatus().equals(INACTIVE)) throw new BaseException(ALREADY_DELETED_PRODUCE);
+
+            produce.changeStatus(produce.getStatus());
             produceRepository.save(produce);
         } catch (BaseException e) {
             throw e;
