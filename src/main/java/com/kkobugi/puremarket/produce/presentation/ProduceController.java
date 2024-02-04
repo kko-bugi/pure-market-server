@@ -53,11 +53,22 @@ public class ProduceController {
         }
     }
 
-    // 판매 상태 변경
+    // [작성자] 판매 상태 변경
     @PatchMapping("/{produceIdx}")
     public BaseResponse<?> changeProduceStatus(@PathVariable Long produceIdx) {
         try {
             produceService.changeProduceStatus(produceIdx);
+            return new BaseResponse<>(SUCCESS);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    // [작성자] 판매글 삭제
+    @PatchMapping("")
+    public BaseResponse<?> deleteProduce(@RequestParam Long produceIdx) {
+        try {
+            produceService.deleteProduce(produceIdx);
             return new BaseResponse<>(SUCCESS);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
