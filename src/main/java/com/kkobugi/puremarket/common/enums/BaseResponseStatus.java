@@ -25,6 +25,8 @@ public enum BaseResponseStatus {
     // produce(2100-2199)
     INVALID_PRODUCE_IDX(false, 2100, "잘못된 produce idx 입니다."),
     TITLE_EXCEEDED_MAX_LIMIT(false, 2101, "제목은 32자 이하여야 합니다."),
+    NO_PRODUCE_WRITER(false, 2102, "해당 판매글의 작성자가 아닙니다."),
+    ALREADY_DELETED_PRODUCE(false, 2103, "이미 삭제된 판매글입니다."),
 
     // recipe(2200-2299)
 
