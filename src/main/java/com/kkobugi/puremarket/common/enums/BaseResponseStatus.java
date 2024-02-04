@@ -33,6 +33,7 @@ public enum BaseResponseStatus {
     // ingredient(2300-2399)
 
     // giveaway(2400-2499)
+    INVALID_GIVEAWAY_IDX(false, 2400, "잘못된 giveaway idx 입니다."),
 
 
     /**
