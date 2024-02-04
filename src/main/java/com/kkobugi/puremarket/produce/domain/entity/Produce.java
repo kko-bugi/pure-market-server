@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 
+import static com.kkobugi.puremarket.common.constants.Constant.INACTIVE;
 import static com.kkobugi.puremarket.common.constants.Constant.Produces.FOR_SALE;
 import static com.kkobugi.puremarket.common.constants.Constant.Produces.SOLD_OUT;
 
@@ -49,5 +50,9 @@ public class Produce extends BaseEntity {
     public void changeStatus(String currentStatus) {
         if (currentStatus.equals(FOR_SALE)) this.setStatus(SOLD_OUT);
         else if (currentStatus.equals(SOLD_OUT)) this.setStatus(FOR_SALE);
+    }
+
+    public void delete() {
+        this.setStatus(INACTIVE);
     }
 }
