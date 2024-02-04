@@ -49,6 +49,7 @@ public enum BaseResponseStatus {
     // ingredient(3300-3399)
 
     // giveaway(3400-3499)
+    NULL_GIVEAWAY_LIST(false, 3400, "나눔글 목록이 비었습니다."),
 
 
     /**
