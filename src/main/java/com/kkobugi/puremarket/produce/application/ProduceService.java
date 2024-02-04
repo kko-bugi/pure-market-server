@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.kkobugi.puremarket.common.constants.Constant.INACTIVE;
-import static com.kkobugi.puremarket.common.constants.Constant.Produces.FOR_SALE;
+import static com.kkobugi.puremarket.common.constants.Constant.Produce.FOR_SALE;
 import static com.kkobugi.puremarket.common.enums.BaseResponseStatus.*;
 
 @Service

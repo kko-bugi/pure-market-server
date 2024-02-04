@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 
 import static com.kkobugi.puremarket.common.constants.Constant.INACTIVE;
-import static com.kkobugi.puremarket.common.constants.Constant.Produces.FOR_SALE;
-import static com.kkobugi.puremarket.common.constants.Constant.Produces.SOLD_OUT;
+import static com.kkobugi.puremarket.common.constants.Constant.Produce.FOR_SALE;
+import static com.kkobugi.puremarket.common.constants.Constant.Produce.SOLD_OUT;
 
 @Entity
 @Getter
