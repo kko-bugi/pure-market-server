@@ -1,4 +1,4 @@
-package com.kkobugi.puremarket.produce.domain.dto;
+package com.kkobugi.puremarket.giveaway.domain.dto;
 
 import org.springframework.web.multipart.MultipartFile;
 

@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import static com.kkobugi.puremarket.common.constants.RequestURI.produce;
 import static com.kkobugi.puremarket.common.enums.BaseResponseStatus.SUCCESS;
 
-
 @RestController
 @RequiredArgsConstructor
 @SecurityRequirement(name = "Bearer")
