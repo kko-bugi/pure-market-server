@@ -9,6 +9,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 
+import static com.kkobugi.puremarket.common.constants.Constant.Giveaway.DONE;
+import static com.kkobugi.puremarket.common.constants.Constant.Giveaway.GIVEAWAY;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -37,5 +40,10 @@ public class Giveaway extends BaseEntity {
         this.title = title;
         this.content = content;
         this.giveawayImage = giveawayImage;
+    }
+
+    public void changeStatus(String currentStatus) {
+        if (currentStatus.equals(GIVEAWAY)) this.setStatus(DONE);
+        else if (currentStatus.equals(DONE)) this.setStatus(GIVEAWAY);
     }
 }

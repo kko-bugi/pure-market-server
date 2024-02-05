@@ -34,6 +34,8 @@ public enum BaseResponseStatus {
 
     // giveaway(2400-2499)
     INVALID_GIVEAWAY_IDX(false, 2400, "잘못된 giveaway idx 입니다."),
+    NO_GIVEAWAY_WRITER(false, 2401, "해당 나눔글의 작성자가 아닙니다."),
+    ALREADY_DELETED_GIVEAWAY(false, 2402, "이미 삭제된 나눔글입니다."),
 
 
     /**
