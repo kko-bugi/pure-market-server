@@ -157,7 +157,8 @@ public class UserService {
                             produce.getProduceIdx(),
                             produce.getTitle(),
                             produce.getProduceImage(),
-                            produce.getCreatedDate()))
+                            produce.getCreatedDate(),
+                            produce.getStatus()))
                     .collect(Collectors.toList());
 
             List<MyPageResponse.Recipe> recipeList = recipeRepository.findTop4ByUserAndStatusEqualsOrderByCreatedDateDesc(user, ACTIVE)
@@ -176,7 +177,8 @@ public class UserService {
                             giveaway.getGiveawayIdx(),
                             giveaway.getTitle(),
                             giveaway.getGiveawayImage(),
-                            giveaway.getCreatedDate()))
+                            giveaway.getCreatedDate(),
+                            giveaway.getStatus()))
                     .collect(Collectors.toList());
 
             return new MyPageResponse(user.getNickname(), user.getProfileImage(), produceList, recipeList, giveawayList);
