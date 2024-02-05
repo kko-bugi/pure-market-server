@@ -130,4 +130,21 @@ public class GiveawayService {
         if (!giveaway.getUser().equals(user)) throw new BaseException(NO_GIVEAWAY_WRITER);
         if (giveaway.getStatus().equals(INACTIVE)) throw new BaseException(ALREADY_DELETED_GIVEAWAY);
     }
+
+    // 나눔글 삭제
+    public void deleteGiveaway(Long giveawayIdx) throws BaseException {
+        try {
+            User user = userRepository.findByUserIdx(authService.getUserIdxFromToken()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            Giveaway giveaway = giveawayRepository.findById(giveawayIdx).orElseThrow(() -> new BaseException(INVALID_GIVEAWAY_IDX));
+
+            validateWriter(user, giveaway);
+
+            giveaway.delete();
+            giveawayRepository.save(giveaway);
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 }
