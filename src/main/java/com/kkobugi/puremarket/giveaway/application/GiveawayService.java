@@ -6,7 +6,7 @@ import com.kkobugi.puremarket.giveaway.domain.dto.GiveawayListResponse;
 import com.kkobugi.puremarket.giveaway.domain.dto.GiveawayResponse;
 import com.kkobugi.puremarket.giveaway.domain.entity.Giveaway;
 import com.kkobugi.puremarket.giveaway.repository.GiveawayRepository;
-import com.kkobugi.puremarket.produce.domain.dto.GiveawayPostRequest;
+import com.kkobugi.puremarket.giveaway.domain.dto.GiveawayPostRequest;
 import com.kkobugi.puremarket.user.application.AuthService;
 import com.kkobugi.puremarket.user.domain.entity.User;
 import com.kkobugi.puremarket.user.repository.UserRepository;

@@ -16,7 +16,8 @@ public record MyPageResponse(
             String title,
             String produceImage,
             @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy/MM/dd", timezone = "Asia/Seoul")
-            LocalDate createdDate) {
+            LocalDate createdDate,
+            String status) {
     }
 
     public record Recipe(
@@ -32,6 +33,7 @@ public record MyPageResponse(
             String title,
             String giveawayImage,
             @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy/MM/dd", timezone = "Asia/Seoul")
-            LocalDate createdDate) {
+            LocalDate createdDate,
+            String status) {
     }
 }

@@ -3,7 +3,7 @@ package com.kkobugi.puremarket.giveaway.presentation;
 import com.kkobugi.puremarket.common.BaseException;
 import com.kkobugi.puremarket.common.BaseResponse;
 import com.kkobugi.puremarket.giveaway.application.GiveawayService;
-import com.kkobugi.puremarket.produce.domain.dto.GiveawayPostRequest;
+import com.kkobugi.puremarket.giveaway.domain.dto.GiveawayPostRequest;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
