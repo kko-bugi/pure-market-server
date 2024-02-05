@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface RecipeRepository extends JpaRepository<Recipe, Long> {
     List<Recipe> findTop4ByUserAndStatusEqualsOrderByCreatedDateDesc(User user, String status);
+    List<Recipe> findByStatusEqualsOrderByCreatedDateDesc(String status);
 }
