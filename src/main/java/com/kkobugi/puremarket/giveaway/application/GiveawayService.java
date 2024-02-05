@@ -13,12 +13,14 @@ import com.kkobugi.puremarket.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.kkobugi.puremarket.common.constants.Constant.Giveaway.DONE;
 import static com.kkobugi.puremarket.common.constants.Constant.Giveaway.GIVEAWAY;
+import static com.kkobugi.puremarket.common.constants.Constant.INACTIVE;
 import static com.kkobugi.puremarket.common.enums.BaseResponseStatus.*;
 
 @Service
@@ -86,6 +88,7 @@ public class GiveawayService {
     }
 
     // 나눔글 등록
+    @Transactional(rollbackFor = Exception.class)
     public void postGiveaway(GiveawayPostRequest giveawayPostRequest) throws BaseException {
         try {
             User writer = userRepository.findByUserIdx(authService.getUserIdxFromToken()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
@@ -97,6 +100,46 @@ public class GiveawayService {
             Giveaway giveaway = new Giveaway(writer, giveawayPostRequest.title(), giveawayPostRequest.content(), giveawayImageUrl);
             giveaway.setStatus(GIVEAWAY);
 
+            giveawayRepository.save(giveaway);
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    // 나눔 상태 변경
+    @Transactional(rollbackFor = Exception.class)
+    public void changeGiveawayStatus(Long giveawayIdx) throws BaseException {
+        try {
+            User user = userRepository.findByUserIdx(authService.getUserIdxFromToken()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            Giveaway giveaway = giveawayRepository.findById(giveawayIdx).orElseThrow(() -> new BaseException(INVALID_GIVEAWAY_IDX));
+
+            validateWriter(user, giveaway);
+
+            giveaway.changeStatus(giveaway.getStatus());
+            giveawayRepository.save(giveaway);
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    private static void validateWriter(User user, Giveaway giveaway) throws BaseException {
+        if (!giveaway.getUser().equals(user)) throw new BaseException(NO_GIVEAWAY_WRITER);
+        if (giveaway.getStatus().equals(INACTIVE)) throw new BaseException(ALREADY_DELETED_GIVEAWAY);
+    }
+
+    // 나눔글 삭제
+    public void deleteGiveaway(Long giveawayIdx) throws BaseException {
+        try {
+            User user = userRepository.findByUserIdx(authService.getUserIdxFromToken()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            Giveaway giveaway = giveawayRepository.findById(giveawayIdx).orElseThrow(() -> new BaseException(INVALID_GIVEAWAY_IDX));
+
+            validateWriter(user, giveaway);
+
+            giveaway.delete();
             giveawayRepository.save(giveaway);
         } catch (BaseException e) {
             throw e;

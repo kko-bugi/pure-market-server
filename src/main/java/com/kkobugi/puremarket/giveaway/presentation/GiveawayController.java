@@ -51,4 +51,26 @@ public class GiveawayController {
             return new BaseResponse<>(e.getStatus());
         }
     }
+
+    // [작성자] 나눔 상태 변경
+    @PatchMapping("/{giveawayIdx}")
+    public BaseResponse<?> changeGiveawayStatus(@PathVariable Long giveawayIdx) {
+        try {
+            giveawayService.changeGiveawayStatus(giveawayIdx);
+            return new BaseResponse<>(SUCCESS);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    // [작성자] 나눔글 삭제
+    @PatchMapping("")
+    public BaseResponse<?> deleteProduce(@RequestParam Long giveawayIdx) {
+        try {
+            giveawayService.deleteGiveaway(giveawayIdx);
+            return new BaseResponse<>(SUCCESS);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
 }
