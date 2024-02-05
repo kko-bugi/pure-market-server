@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface GiveawayRepository extends JpaRepository<Giveaway, Long> {
-    List<Giveaway> findTop4ByUserAndStatusEqualsOrderByCreatedDateDesc(User user, String status);
+    List<Giveaway> findTop4ByUserAndStatusInOrderByCreatedDateDesc(User user, List<String> status);
     List<Giveaway> findByStatusEqualsOrderByCreatedDateDesc(String status);
 }
