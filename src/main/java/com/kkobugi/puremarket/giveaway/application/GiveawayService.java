@@ -14,9 +14,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import static com.kkobugi.puremarket.common.constants.Constant.Giveaway.DONE;
 import static com.kkobugi.puremarket.common.constants.Constant.Giveaway.GIVEAWAY;
 import static com.kkobugi.puremarket.common.enums.BaseResponseStatus.*;
 
@@ -34,18 +35,31 @@ public class GiveawayService {
     // 나눔글 목록 조회
     public GiveawayListResponse getGiveawayList() throws BaseException { // TODO: 나눔완료 글도 목록 조회 시 포함하도록 수정 팔요
         try {
+            // 나눔중 상태인 글 최신순으로 조회
             List<GiveawayListResponse.GiveawayDto> giveawayList = giveawayRepository.findByStatusEqualsOrderByCreatedDateDesc(GIVEAWAY).stream()
                     .map(giveaway -> new GiveawayListResponse.GiveawayDto(
                             giveaway.getGiveawayIdx(),
                             giveaway.getTitle(),
                             giveaway.getContent(),
                             giveaway.getGiveawayImage(),
-                            giveaway.getStatus()))
-                    .collect(Collectors.toList());
-            if (giveawayList.isEmpty()) throw new BaseException(NULL_GIVEAWAY_LIST);
-            return new GiveawayListResponse(giveawayList);
-        } catch (BaseException e) {
-            throw e;
+                            giveaway.getStatus())).toList();
+
+            // 나눔완료 상태인 글 최신순으로 조회
+            List<GiveawayListResponse.GiveawayDto> doneList = giveawayRepository.findByStatusEqualsOrderByCreatedDateDesc(DONE).stream()
+                    .map(giveaway -> new GiveawayListResponse.GiveawayDto(
+                            giveaway.getGiveawayIdx(),
+                            giveaway.getTitle(),
+                            giveaway.getContent(),
+                            giveaway.getGiveawayImage(),
+                            giveaway.getStatus())).toList();
+
+            List<GiveawayListResponse.GiveawayDto> giveawayDtoList = new ArrayList<>();
+            giveawayDtoList.addAll(giveawayList);
+            giveawayDtoList.addAll(doneList);
+            //if (giveawayList.isEmpty()) throw new BaseException(NULL_GIVEAWAY_LIST);
+            return new GiveawayListResponse(giveawayDtoList);
+//        } catch (BaseException e) {
+//            throw e;
         } catch (Exception e) {
             throw new BaseException(DATABASE_ERROR);
         }
