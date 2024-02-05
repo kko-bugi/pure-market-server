@@ -5,5 +5,5 @@ import lombok.Getter;
 @Getter
 public enum IngredientType {
     INGREDIENT,
-    SOURCE
+    SAUCE
 }
