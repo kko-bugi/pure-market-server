@@ -33,7 +33,7 @@ public class GiveawayController {
 
     // 나눔글 상세 조회
     @GetMapping("/{giveawayIdx}")
-    public BaseResponse<?> getGiveawayList(@PathVariable Long giveawayIdx) {
+    public BaseResponse<?> getGiveaway(@PathVariable Long giveawayIdx) {
         try {
             return new BaseResponse<>(giveawayService.getGiveawayPost(giveawayIdx));
         } catch (BaseException e) {
@@ -65,7 +65,7 @@ public class GiveawayController {
 
     // [작성자] 나눔글 삭제
     @PatchMapping("")
-    public BaseResponse<?> deleteProduce(@RequestParam Long giveawayIdx) {
+    public BaseResponse<?> deleteGiveaway(@RequestParam Long giveawayIdx) {
         try {
             giveawayService.deleteGiveaway(giveawayIdx);
             return new BaseResponse<>(SUCCESS);

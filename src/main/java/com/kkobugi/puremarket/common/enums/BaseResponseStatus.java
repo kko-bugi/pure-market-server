@@ -19,21 +19,22 @@ public enum BaseResponseStatus {
     INVALID_PASSWORD(false, 2003, "비밀번호가 잘못되었습니다."),
     INVALID_LOGIN_ID(false, 2004, "잘못된 아이디입니다."),
     INVALID_ACCESS_TOKEN(false, 2005, "잘못된 AccessToken 입니다."),
-    INVALID_REFRESH_TOKEN(false, 2006, "잘못된 RefreshToken 입니다."),
-    NULL_ACCESS_TOKEN(false, 2007, "AccessToken을 입력해주세요."),
+    INVALID_REFRESH_TOKEN(false, 2006, "잘못된 Refresh Token 입니다."),
+    NULL_ACCESS_TOKEN(false, 2007, "Access Token을 입력해주세요."),
 
     // produce(2100-2199)
-    INVALID_PRODUCE_IDX(false, 2100, "잘못된 produce idx 입니다."),
+    INVALID_PRODUCE_IDX(false, 2100, "잘못된 판매글 idx 입니다."),
     TITLE_EXCEEDED_MAX_LIMIT(false, 2101, "제목은 32자 이하여야 합니다."),
     NO_PRODUCE_WRITER(false, 2102, "해당 판매글의 작성자가 아닙니다."),
     ALREADY_DELETED_PRODUCE(false, 2103, "이미 삭제된 판매글입니다."),
 
     // recipe(2200-2299)
+    INVALID_RECIPE_IDX(false, 2200, "잘못된 레시피글 idx 입니다."),
 
     // ingredient(2300-2399)
 
     // giveaway(2400-2499)
-    INVALID_GIVEAWAY_IDX(false, 2400, "잘못된 giveaway idx 입니다."),
+    INVALID_GIVEAWAY_IDX(false, 2400, "잘못된 나눔글 idx 입니다."),
     NO_GIVEAWAY_WRITER(false, 2401, "해당 나눔글의 작성자가 아닙니다."),
     ALREADY_DELETED_GIVEAWAY(false, 2402, "이미 삭제된 나눔글입니다."),
 

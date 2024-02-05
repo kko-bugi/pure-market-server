@@ -33,7 +33,7 @@ public class ProduceController {
 
     // 판매글 상세 조회
     @GetMapping("/{produceIdx}")
-    public BaseResponse<?> getProduceList(@PathVariable Long produceIdx) {
+    public BaseResponse<?> getProduce(@PathVariable Long produceIdx) {
         try {
             return new BaseResponse<>(produceService.getProducePost(produceIdx));
         } catch (BaseException e) {
