@@ -185,6 +185,8 @@ public class AuthService {
             String refreshTokenFromRedis = redisTemplate.opsForValue().get("REFRESH_TOKEN:"+reissueTokenRequest.loginId());
             if (!refreshTokenFromRequest.equals(refreshTokenFromRedis))
                 throw new BaseException(INVALID_REFRESH_TOKEN);
+        } catch (BaseException e) {
+            throw e;
         } catch (Exception e) {
             throw new BaseException(DATABASE_ERROR);
         }

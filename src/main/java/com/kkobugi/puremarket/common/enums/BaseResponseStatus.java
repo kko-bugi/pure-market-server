@@ -40,7 +40,8 @@ public enum BaseResponseStatus {
      * 3000: Response 오류
      */
     // users(3000~3099)
-    INVALID_USER_IDX(false, 3000, "해당 user를 찾을 수 없습니다."),
+    INVALID_USER_IDX(false, 3000, "user idx가 잘못 되었습니다."),
+    NO_MATCH_USER(false, 3001, "해당 user를 찾을 수 없습니다."),
 
     // produce(3100-3199)
     NULL_PRODUCE_LIST(false, 3100, "판매글 목록이 비었습니다."),
