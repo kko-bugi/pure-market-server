@@ -113,7 +113,7 @@ public class UserService {
     public JwtDto reissueToken(ReissueTokenRequest reissueTokenRequest) throws BaseException {
         try {
             User user = userRepository.findByLoginIdAndStatusEquals(reissueTokenRequest.loginId(), ACTIVE)
-                    .orElseThrow(() -> new BaseException(INVALID_LOGIN_ID));
+                    .orElseThrow(() -> new BaseException(NO_MATCH_USER));
             authService.validateRefreshToken(reissueTokenRequest);
             return authService.generateToken(user);
         } catch (BaseException e) {
