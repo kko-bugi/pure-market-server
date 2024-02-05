@@ -14,11 +14,16 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.kkobugi.puremarket.common.constants.Constant.ACTIVE;
+import static com.kkobugi.puremarket.common.constants.Constant.Giveaway.DONE;
+import static com.kkobugi.puremarket.common.constants.Constant.Giveaway.GIVEAWAY;
+import static com.kkobugi.puremarket.common.constants.Constant.Produce.FOR_SALE;
+import static com.kkobugi.puremarket.common.constants.Constant.Produce.SOLD_OUT;
 import static com.kkobugi.puremarket.common.enums.BaseResponseStatus.*;
 
 @Service
@@ -140,39 +145,41 @@ public class UserService {
     }
 
     // 마이페이지 조회
-    public UserProfileResponse getMyPage() throws BaseException {
+    public MyPageResponse getMyPage() throws BaseException {
         try {
             Long userIdx = authService.getUserIdxFromToken();
             User user = userRepository.findByUserIdxAndStatusEquals(userIdx, ACTIVE).orElseThrow(() -> new BaseException(INVALID_LOGIN_ID));
 
-            List<UserProfileResponse.Produce> produceList = produceRepository.findTop4ByUserAndStatusEqualsOrderByCreatedDateDesc(user, ACTIVE)
+            List<String> produceStatuses = Arrays.asList(FOR_SALE, SOLD_OUT);
+            List<MyPageResponse.Produce> produceList = produceRepository.findTop4ByUserAndStatusInOrderByCreatedDateDesc(user, produceStatuses)
                     .stream()
-                    .map(produce -> new UserProfileResponse.Produce(
+                    .map(produce -> new MyPageResponse.Produce(
                             produce.getProduceIdx(),
                             produce.getTitle(),
                             produce.getProduceImage(),
                             produce.getCreatedDate()))
                     .collect(Collectors.toList());
 
-            List<UserProfileResponse.Recipe> recipeList = recipeRepository.findTop4ByUserAndStatusEqualsOrderByCreatedDateDesc(user, ACTIVE)
+            List<MyPageResponse.Recipe> recipeList = recipeRepository.findTop4ByUserAndStatusEqualsOrderByCreatedDateDesc(user, ACTIVE)
                     .stream()
-                    .map(recipe -> new UserProfileResponse.Recipe(
+                    .map(recipe -> new MyPageResponse.Recipe(
                             recipe.getRecipeIdx(),
                             recipe.getTitle(),
                             recipe.getRecipeImage(),
                             recipe.getCreatedDate()))
                     .collect(Collectors.toList());
 
-            List<UserProfileResponse.Giveaway> giveawayList = giveawayRepository.findTop4ByUserAndStatusEqualsOrderByCreatedDateDesc(user, ACTIVE)
+            List<String> giveawayStatuses = Arrays.asList(GIVEAWAY, DONE);
+            List<MyPageResponse.Giveaway> giveawayList = giveawayRepository.findTop4ByUserAndStatusInOrderByCreatedDateDesc(user, giveawayStatuses)
                     .stream()
-                    .map(giveaway -> new UserProfileResponse.Giveaway(
+                    .map(giveaway -> new MyPageResponse.Giveaway(
                             giveaway.getGiveawayIdx(),
                             giveaway.getTitle(),
                             giveaway.getGiveawayImage(),
                             giveaway.getCreatedDate()))
                     .collect(Collectors.toList());
 
-            return new UserProfileResponse(user.getNickname(), user.getProfileImage(), produceList, recipeList, giveawayList);
+            return new MyPageResponse(user.getNickname(), user.getProfileImage(), produceList, recipeList, giveawayList);
         } catch (BaseException e) {
             throw e;
         } catch (Exception e) {
