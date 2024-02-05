@@ -15,11 +15,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.kkobugi.puremarket.common.constants.Constant.INACTIVE;
 import static com.kkobugi.puremarket.common.constants.Constant.Produce.FOR_SALE;
+import static com.kkobugi.puremarket.common.constants.Constant.Produce.SOLD_OUT;
 import static com.kkobugi.puremarket.common.enums.BaseResponseStatus.*;
 
 @Service
@@ -34,21 +35,37 @@ public class ProduceService {
     private String bucketName;
 
     // 판매글 목록 조회
-    public ProduceListResponse getProduceList() throws BaseException { // TODO: status=SOLD_OUT인 것도 조회
+    public ProduceListResponse getProduceList() throws BaseException {
         try {
             // 판매 상태인 글 최신순으로 조회
-            List<ProduceListResponse.ProduceDto> produceList = produceRepository.findByStatusEqualsOrderByCreatedDateDesc(FOR_SALE).stream()
+            List<ProduceListResponse.ProduceDto> forSaleList = produceRepository.findByStatusEqualsOrderByCreatedDateDesc(FOR_SALE).stream()
                     .map(produce -> new ProduceListResponse.ProduceDto(
                             produce.getProduceIdx(),
                             produce.getTitle(),
                             produce.getPrice(),
                             produce.getProduceImage(),
-                            produce.getStatus()))
-                    .collect(Collectors.toList());
-            if (produceList.isEmpty()) throw new BaseException(NULL_PRODUCE_LIST);
+                            produce.getStatus())).toList();
+
+            // 판매완료 상태인 글 최신순으로 조회
+            List<ProduceListResponse.ProduceDto> soldOutList = produceRepository.findByStatusEqualsOrderByCreatedDateDesc(SOLD_OUT).stream()
+                    .map(produce -> new ProduceListResponse.ProduceDto(
+                            produce.getProduceIdx(),
+                            produce.getTitle(),
+                            produce.getPrice(),
+                            produce.getProduceImage(),
+                            produce.getStatus())).toList();
+
+            // validation
+            //if (forSaleList.isEmpty() && soldOutList.isEmpty()) throw new BaseException(NULL_PRODUCE_LIST);
+
+            //forSaleList.addAll(soldOutList);
+            List<ProduceListResponse.ProduceDto> produceList = new ArrayList<>();
+            produceList.addAll(forSaleList);
+            produceList.addAll(soldOutList);
+
             return new ProduceListResponse(produceList);
-        } catch (BaseException e) {
-            throw e;
+//        } catch (BaseException e) {
+//            throw e;
         } catch (Exception e) {
             throw new BaseException(DATABASE_ERROR);
         }
@@ -79,9 +96,6 @@ public class ProduceService {
     public void postProduce(ProducePostRequest producePostRequest) throws BaseException {
         try {
             User writer = userRepository.findByUserIdx(authService.getUserIdxFromToken()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
-
-            // validation
-            if (producePostRequest.title().length() > 32) throw new BaseException(TITLE_EXCEEDED_MAX_LIMIT);
 
             // upload image
             String fullPath = gcsService.uploadImage("produce", producePostRequest.produceImage());
