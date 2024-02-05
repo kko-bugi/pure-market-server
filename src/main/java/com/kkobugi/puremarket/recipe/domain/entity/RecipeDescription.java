@@ -11,7 +11,7 @@ import org.hibernate.annotations.DynamicInsert;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DynamicInsert
-public class RecipeDescription extends BaseEntity { // 레시피 상세
+public class RecipeDescription extends BaseEntity { // 레시피 상세(조리 순서)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long recipeDescriptionIdx;
