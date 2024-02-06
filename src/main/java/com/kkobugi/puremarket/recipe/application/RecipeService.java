@@ -1,15 +1,24 @@
 package com.kkobugi.puremarket.recipe.application;
 
 import com.kkobugi.puremarket.common.BaseException;
+import com.kkobugi.puremarket.common.gcs.GCSService;
+import com.kkobugi.puremarket.ingredient.domain.entity.Ingredient;
 import com.kkobugi.puremarket.ingredient.repository.IngredientRepository;
 import com.kkobugi.puremarket.recipe.domain.dto.RecipeListResponse;
+import com.kkobugi.puremarket.recipe.domain.dto.RecipePostRequest;
 import com.kkobugi.puremarket.recipe.domain.dto.RecipeResponse;
 import com.kkobugi.puremarket.recipe.domain.entity.Recipe;
+import com.kkobugi.puremarket.recipe.domain.entity.RecipeDescription;
 import com.kkobugi.puremarket.recipe.repository.RecipeDescriptionRepository;
 import com.kkobugi.puremarket.recipe.repository.RecipeRepository;
 import com.kkobugi.puremarket.user.application.AuthService;
+import com.kkobugi.puremarket.user.domain.entity.User;
+import com.kkobugi.puremarket.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -25,6 +34,11 @@ public class RecipeService {
     private final AuthService authService;
     private final IngredientRepository ingredientRepository;
     private final RecipeDescriptionRepository recipeDescriptionRepository;
+    private final UserRepository userRepository;
+    private final GCSService gcsService;
+
+    @Value("${spring.cloud.gcp.storage.bucket}")
+    private String bucketName;
 
     // 레시피글 목록 조회
     public RecipeListResponse getRecipeList() throws BaseException {
@@ -77,6 +91,41 @@ public class RecipeService {
         } catch (BaseException e) {
             throw e;
         } catch (Exception e) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    // 레시피글 등록
+    @Transactional(rollbackFor = Exception.class)
+    public void postRecipe(MultipartFile image, RecipePostRequest recipePostRequest) throws BaseException {
+        try {
+            User writer = userRepository.findByUserIdx(authService.getUserIdxFromToken()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+
+            // upload image
+            String fullPath = gcsService.uploadImage("recipe", image);
+            String recipeImageUrl = "https://storage.googleapis.com/"+bucketName+"/"+fullPath;
+
+            Recipe recipe = new Recipe(writer, recipePostRequest.title(), recipePostRequest.content(), recipeImageUrl);
+            recipeRepository.save(recipe);
+
+            // 재료 리스트 생성
+            List<Ingredient> ingredientList = recipePostRequest.ingredientList().stream()
+                    .map(ingredientDto -> new Ingredient(recipe, ingredientDto.name(), ingredientDto.quantity(), INGREDIENT)).toList();
+            ingredientRepository.saveAll(ingredientList);
+
+            // 양념 리스트 생성
+            List<Ingredient> sauceList = recipePostRequest.sauceList().stream()
+                    .map(sauceDto -> new Ingredient(recipe, sauceDto.name(), sauceDto.quantity(), SAUCE)).toList();
+            ingredientRepository.saveAll(sauceList);
+
+            // 조리 순서 생성
+            List<RecipeDescription> descriptionList = recipePostRequest.recipeDescriptionList().stream()
+                    .map(descriptionDto -> new RecipeDescription(recipe, descriptionDto.orderNumber(), descriptionDto.description())).toList();
+            recipeDescriptionRepository.saveAll(descriptionList);
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
             throw new BaseException(DATABASE_ERROR);
         }
     }
