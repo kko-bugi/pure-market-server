@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
 import java.util.List;
@@ -42,11 +43,11 @@ public class UserService {
 
     // 회원가입
     @Transactional(rollbackFor = Exception.class)
-    public JwtDto signup(SignupRequest signupRequest) throws BaseException {
+    public JwtDto signup(MultipartFile image, SignupRequest signupRequest) throws BaseException {
         try {
             if(!signupRequest.password().equals(signupRequest.passwordCheck())) throw new BaseException(UNMATCHED_PASSWORD);
 
-            String fullPath = gcsService.uploadImage("users", signupRequest.profileImage()); // 프로필 이미지 업로드
+            String fullPath = gcsService.uploadImage("users", image); // 프로필 이미지 업로드
             String profileImageUrl = "https://storage.googleapis.com/"+bucketName+"/"+fullPath;
 
             User newUser = signupRequest.toUser(encoder.encode(signupRequest.password()), profileImageUrl);
