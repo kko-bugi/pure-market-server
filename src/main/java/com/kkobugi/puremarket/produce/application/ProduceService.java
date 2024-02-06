@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,12 +87,12 @@ public class ProduceService {
 
     // 판매글 등록
     @Transactional(rollbackFor = Exception.class)
-    public void postProduce(ProducePostRequest producePostRequest) throws BaseException {
+    public void postProduce(MultipartFile image, ProducePostRequest producePostRequest) throws BaseException {
         try {
             User writer = userRepository.findByUserIdx(authService.getUserIdxFromToken()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
 
             // upload image
-            String fullPath = gcsService.uploadImage("produce", producePostRequest.produceImage());
+            String fullPath = gcsService.uploadImage("produce", image);
             String produceImageUrl = "https://storage.googleapis.com/"+bucketName+"/"+fullPath;
 
             Produce produce = new Produce(writer, producePostRequest.title(), producePostRequest.content(), producePostRequest.price(), produceImageUrl);
