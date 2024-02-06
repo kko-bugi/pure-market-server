@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,12 +87,12 @@ public class GiveawayService {
 
     // 나눔글 등록
     @Transactional(rollbackFor = Exception.class)
-    public void postGiveaway(GiveawayPostRequest giveawayPostRequest) throws BaseException {
+    public void postGiveaway(MultipartFile image, GiveawayPostRequest giveawayPostRequest) throws BaseException {
         try {
             User writer = userRepository.findByUserIdx(authService.getUserIdxFromToken()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
 
             // upload image
-            String fullPath = gcsService.uploadImage("giveaway", giveawayPostRequest.giveawayImage());
+            String fullPath = gcsService.uploadImage("giveaway", image);
             String giveawayImageUrl = "https://storage.googleapis.com/"+bucketName+"/"+fullPath;
 
             Giveaway giveaway = new Giveaway(writer, giveawayPostRequest.title(), giveawayPostRequest.content(), giveawayImageUrl);

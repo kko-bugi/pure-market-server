@@ -36,7 +36,7 @@ public class UserController {
             @ApiResponse(responseCode = "2001", description = "아이디 중복"),
             @ApiResponse(responseCode = "2002", description = "닉네임 중복"),
             @ApiResponse(responseCode = "2003", description = "비밀번호 불일치")})
-    public BaseResponse<?> signup(@RequestPart(value = "image", required = false) MultipartFile image, @RequestPart(value = "dto") SignupRequest signupRequest) {
+    public BaseResponse<?> signup(@RequestPart(value = "image", required = false) MultipartFile image, @RequestPart(value = "signupRequest") SignupRequest signupRequest) {
         try {
             return new BaseResponse<>(userService.signup(image, signupRequest));
         } catch(BaseException e) {

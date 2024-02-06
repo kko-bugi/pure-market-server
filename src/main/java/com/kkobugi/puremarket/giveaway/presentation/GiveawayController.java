@@ -7,7 +7,9 @@ import com.kkobugi.puremarket.giveaway.domain.dto.GiveawayPostRequest;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import static com.kkobugi.puremarket.common.constants.RequestURI.giveaway;
 import static com.kkobugi.puremarket.common.enums.BaseResponseStatus.SUCCESS;
@@ -42,10 +44,10 @@ public class GiveawayController {
     }
 
     // 나눔글 등록
-    @PostMapping("")
-    public BaseResponse<?> postGiveaway(GiveawayPostRequest giveawayPostRequest) {
+    @PostMapping(value = "", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public BaseResponse<?> postGiveaway(@RequestPart(value = "image", required = false) MultipartFile image, @RequestPart(value = "giveawayRequest") GiveawayPostRequest giveawayPostRequest) {
         try {
-            giveawayService.postGiveaway(giveawayPostRequest);
+            giveawayService.postGiveaway(image, giveawayPostRequest);
             return new BaseResponse<>(SUCCESS);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
