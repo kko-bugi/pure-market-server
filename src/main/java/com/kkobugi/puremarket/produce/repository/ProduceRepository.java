@@ -10,5 +10,6 @@ public interface ProduceRepository extends JpaRepository<Produce, Long> {
     List<Produce> findTop4ByUserAndStatusInOrderByCreatedDateDesc(User user, List<String> statuses);
 
     List<Produce> findByStatusEqualsOrderByCreatedDateDesc(String status);
+    List<Produce> findTop4ByStatusEqualsOrderByCreatedDateDesc(String status);
 
 }

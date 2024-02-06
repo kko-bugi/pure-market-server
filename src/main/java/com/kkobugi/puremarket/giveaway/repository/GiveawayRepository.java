@@ -9,4 +9,5 @@ import java.util.List;
 public interface GiveawayRepository extends JpaRepository<Giveaway, Long> {
     List<Giveaway> findTop4ByUserAndStatusInOrderByCreatedDateDesc(User user, List<String> status);
     List<Giveaway> findByStatusEqualsOrderByCreatedDateDesc(String status);
+    List<Giveaway> findTop4ByStatusEqualsOrderByCreatedDateDesc(String status);
 }
