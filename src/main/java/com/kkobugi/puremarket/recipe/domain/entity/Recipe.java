@@ -4,6 +4,7 @@ import com.kkobugi.puremarket.common.BaseEntity;
 import com.kkobugi.puremarket.user.domain.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
@@ -29,4 +30,12 @@ public class Recipe extends BaseEntity {
 
     @Column(nullable = false)
     private String recipeImage;
+
+    @Builder
+    public Recipe(User user, String title, String content, String recipeImage) {
+        this.user = user;
+        this.title = title;
+        this.content = content;
+        this.recipeImage = recipeImage;
+    }
 }

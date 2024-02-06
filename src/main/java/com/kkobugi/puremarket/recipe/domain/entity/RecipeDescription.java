@@ -3,6 +3,7 @@ package com.kkobugi.puremarket.recipe.domain.entity;
 import com.kkobugi.puremarket.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
@@ -25,4 +26,11 @@ public class RecipeDescription extends BaseEntity { // 레시피 상세(조리 �
 
     @Column(nullable = false)
     private String description;
+
+    @Builder
+    public RecipeDescription(Recipe recipe, Integer orderNumber, String description) {
+        this.recipe = recipe;
+        this.orderNumber = orderNumber;
+        this.description = description;
+    }
 }

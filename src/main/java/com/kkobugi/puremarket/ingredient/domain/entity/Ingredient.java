@@ -5,6 +5,7 @@ import com.kkobugi.puremarket.common.enums.IngredientType;
 import com.kkobugi.puremarket.recipe.domain.entity.Recipe;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
@@ -31,4 +32,12 @@ public class Ingredient extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private IngredientType ingredientType;
+
+    @Builder
+    public Ingredient(Recipe recipe, String name, String quantity, IngredientType ingredientType) {
+        this.recipe = recipe;
+        this.name = name;
+        this.quantity = quantity;
+        this.ingredientType = ingredientType;
+    }
 }
