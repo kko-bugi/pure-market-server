@@ -6,4 +6,5 @@ public class RequestURI {
     public final static String produce = baseURI + "/produce";
     public final static String giveaway = baseURI + "/giveaway";
     public final static String recipe = baseURI + "/recipe";
+    public final static String home = baseURI + "/home";
 }
