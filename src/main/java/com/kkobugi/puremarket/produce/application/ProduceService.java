@@ -55,17 +55,11 @@ public class ProduceService {
                             produce.getProduceImage(),
                             produce.getStatus())).toList();
 
-            // validation
-            //if (forSaleList.isEmpty() && soldOutList.isEmpty()) throw new BaseException(NULL_PRODUCE_LIST);
-
-            //forSaleList.addAll(soldOutList);
             List<ProduceListResponse.ProduceDto> produceList = new ArrayList<>();
             produceList.addAll(forSaleList);
             produceList.addAll(soldOutList);
 
             return new ProduceListResponse(produceList);
-//        } catch (BaseException e) {
-//            throw e;
         } catch (Exception e) {
             throw new BaseException(DATABASE_ERROR);
         }
@@ -81,7 +75,6 @@ public class ProduceService {
             if (userIdx != null && produce.getUser() != null) {
                 isWriter = userIdx.equals(produce.getUser().getUserIdx());
             }
-            // TODO: 판매완료 글 상세 페이지 구현에 따라 status 로직 변경 필요
             return new ProduceResponse(produce.getProduceIdx(), produce.getTitle(), produce.getContent(), produce.getPrice(), produce.getProduceImage(), produce.getStatus(),
                                         produce.getUser().getNickname(), produce.getUser().getContact(), produce.getUser().getProfileImage(), isWriter);
         } catch (BaseException e) {

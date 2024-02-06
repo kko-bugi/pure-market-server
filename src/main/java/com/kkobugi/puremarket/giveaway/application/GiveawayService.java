@@ -35,7 +35,7 @@ public class GiveawayService {
     private String bucketName;
 
     // 나눔글 목록 조회
-    public GiveawayListResponse getGiveawayList() throws BaseException { // TODO: 나눔완료 글도 목록 조회 시 포함하도록 수정 팔요
+    public GiveawayListResponse getGiveawayList() throws BaseException {
         try {
             // 나눔중 상태인 글 최신순으로 조회
             List<GiveawayListResponse.GiveawayDto> giveawayList = giveawayRepository.findByStatusEqualsOrderByCreatedDateDesc(GIVEAWAY).stream()
@@ -58,10 +58,8 @@ public class GiveawayService {
             List<GiveawayListResponse.GiveawayDto> giveawayDtoList = new ArrayList<>();
             giveawayDtoList.addAll(giveawayList);
             giveawayDtoList.addAll(doneList);
-            //if (giveawayList.isEmpty()) throw new BaseException(NULL_GIVEAWAY_LIST);
+
             return new GiveawayListResponse(giveawayDtoList);
-//        } catch (BaseException e) {
-//            throw e;
         } catch (Exception e) {
             throw new BaseException(DATABASE_ERROR);
         }
@@ -77,7 +75,6 @@ public class GiveawayService {
             if (userIdx != null && giveaway.getUser() != null) {
                 isWriter = userIdx.equals(giveaway.getUser().getUserIdx());
             }
-            // TODO: 나눔완료 글 상세 페이지 구현에 따라 status 로직 변경 필요
             return new GiveawayResponse(giveaway.getGiveawayIdx(), giveaway.getTitle(), giveaway.getContent(), giveaway.getGiveawayImage(), giveaway.getStatus(),
                                             giveaway.getUser().getNickname(), giveaway.getUser().getContact(), giveaway.getUser().getProfileImage(), isWriter);
         } catch (BaseException e) {
