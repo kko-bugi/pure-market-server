@@ -2,7 +2,6 @@ package com.kkobugi.puremarket.user.domain.dto;
 
 import com.kkobugi.puremarket.user.domain.entity.User;
 import lombok.Builder;
-import org.springframework.web.multipart.MultipartFile;
 
 @Builder
 public record SignupRequest(
@@ -10,8 +9,7 @@ public record SignupRequest(
         String loginId,
         String password,
         String passwordCheck,
-        String contact,
-        MultipartFile profileImage) {
+        String contact) {
 
     public User toUser(String encodedPassword, String imageUrl) {
         return User.builder()
