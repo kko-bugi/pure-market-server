@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 import static com.kkobugi.puremarket.common.constants.Constant.ACTIVE;
+import static com.kkobugi.puremarket.common.constants.Constant.INACTIVE;
 import static com.kkobugi.puremarket.common.enums.BaseResponseStatus.*;
 import static com.kkobugi.puremarket.common.enums.IngredientType.INGREDIENT;
 import static com.kkobugi.puremarket.common.enums.IngredientType.SAUCE;
@@ -128,5 +129,27 @@ public class RecipeService {
             e.printStackTrace();
             throw new BaseException(DATABASE_ERROR);
         }
+    }
+
+    // 레시피글 삭제
+    public void deleteRecipe(Long recipeIdx) throws BaseException {
+        try {
+            User user = userRepository.findByUserIdx(authService.getUserIdxFromToken()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            Recipe recipe = recipeRepository.findById(recipeIdx).orElseThrow(() -> new BaseException(INVALID_RECIPE_IDX));
+
+            validateWriter(user, recipe);
+
+            recipe.delete();
+            recipeRepository.save(recipe);
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    private static void validateWriter(User user, Recipe recipe) throws BaseException {
+        if (!recipe.getUser().equals(user)) throw new BaseException(NO_RECIPE_WRITER);
+        if (recipe.getStatus().equals(INACTIVE)) throw new BaseException(ALREADY_DELETED_RECIPE);
     }
 }

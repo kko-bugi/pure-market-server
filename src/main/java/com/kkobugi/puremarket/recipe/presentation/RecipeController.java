@@ -53,4 +53,15 @@ public class RecipeController {
             return new BaseResponse<>(e.getStatus());
         }
     }
+
+    // [작성자] 레시피글 삭제
+    @PatchMapping("/{recipeIdx}")
+    public BaseResponse<?> deleteRecipe(@PathVariable Long recipeIdx) {
+        try {
+            recipeService.deleteRecipe(recipeIdx);
+            return new BaseResponse<>(SUCCESS);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
 }
