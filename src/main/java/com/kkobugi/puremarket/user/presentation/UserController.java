@@ -53,7 +53,7 @@ public class UserController {
             @ApiResponse(responseCode = "1000", description = "로그인 성공"),
             @ApiResponse(responseCode = "2000", description = "잘못된 userIdx", content = @Content(schema = @Schema(implementation = BaseResponse.class))),
             @ApiResponse(responseCode = "2004", description = "잘못된 비밀번호", content = @Content(schema = @Schema(implementation = BaseResponse.class)))})
-    public BaseResponse<?> login(@RequestBody LoginRequest loginRequest) {
+    public BaseResponse<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
         try {
             return new BaseResponse<>(userService.login(loginRequest));
         } catch(BaseException e) {
@@ -116,7 +116,7 @@ public class UserController {
             @ApiResponse(responseCode = "1000", description = "재발급 성공"),
             @ApiResponse(responseCode = "2007", description = "잘못된 refresh token", content = @Content(schema = @Schema(implementation = BaseResponse.class))),
             @ApiResponse(responseCode = "3000", description = "존재하지 않는 user", content = @Content(schema = @Schema(implementation = BaseResponse.class)))})
-    public BaseResponse<?> reissueToken(@RequestBody ReissueTokenRequest reissueTokenRequest) {
+    public BaseResponse<JwtDto> reissueToken(@RequestBody ReissueTokenRequest reissueTokenRequest) {
         try{
             return new BaseResponse<>(userService.reissueToken(reissueTokenRequest));
         } catch (BaseException e){
@@ -148,7 +148,7 @@ public class UserController {
             @ApiResponse(responseCode = "1000", description = "조회 성공"),
             @ApiResponse(responseCode = "2000", description = "잘못된 userIdx", content = @Content(schema = @Schema(implementation = BaseResponse.class))),
             @ApiResponse(responseCode = "2008", description = "빈 Access Token", content = @Content(schema = @Schema(implementation = BaseResponse.class)))})
-    public BaseResponse<?> getMyPage() {
+    public BaseResponse<MyPageResponse> getMyPage() {
         try{
             return new BaseResponse<>(userService.getMyPage());
         } catch (BaseException e){
@@ -162,7 +162,7 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "1000", description = "조회 성공"),
             @ApiResponse(responseCode = "2000", description = "잘못된 userIdx", content = @Content(schema = @Schema(implementation = BaseResponse.class)))})
-    public BaseResponse<?> getProfile() {
+    public BaseResponse<ProfileResponse> getProfile() {
         try{
             return new BaseResponse<>(userService.getProfile());
         } catch (BaseException e){
