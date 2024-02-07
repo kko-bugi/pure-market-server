@@ -102,8 +102,7 @@ public class UserService {
     @Transactional(rollbackFor = Exception.class)
     public void logout(Long userIdx) throws BaseException {
         try {
-            User user = userRepository.findByUserIdxAndStatusEquals(userIdx, ACTIVE)
-                    .orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            User user = userRepository.findByUserIdxAndStatusEquals(userIdx, ACTIVE).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
             authService.logout(user);
             user.logout(); // LOGOUT
             userRepository.save(user);
@@ -118,8 +117,7 @@ public class UserService {
     @Transactional(rollbackFor = Exception.class)
     public JwtDto reissueToken(ReissueTokenRequest reissueTokenRequest) throws BaseException {
         try {
-            User user = userRepository.findByLoginIdAndStatusEquals(reissueTokenRequest.loginId(), ACTIVE)
-                    .orElseThrow(() -> new BaseException(NO_MATCH_USER));
+            User user = userRepository.findByLoginIdAndStatusEquals(reissueTokenRequest.loginId(), ACTIVE).orElseThrow(() -> new BaseException(NO_MATCH_USER));
             authService.validateRefreshToken(reissueTokenRequest);
             return authService.generateToken(user);
         } catch (BaseException e) {
@@ -133,8 +131,7 @@ public class UserService {
     @Transactional(rollbackFor = Exception.class)
     public void signout(Long userIdx) throws BaseException {
         try {
-            User user = userRepository.findByUserIdxAndStatusEquals(userIdx, ACTIVE)
-                    .orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            User user = userRepository.findByUserIdxAndStatusEquals(userIdx, ACTIVE).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
             authService.signout(user);
             user.signout(); // INACTIVE
             userRepository.save(user);
@@ -149,7 +146,7 @@ public class UserService {
     public MyPageResponse getMyPage() throws BaseException {
         try {
             Long userIdx = authService.getUserIdxFromToken();
-            User user = userRepository.findByUserIdxAndStatusEquals(userIdx, ACTIVE).orElseThrow(() -> new BaseException(INVALID_LOGIN_ID));
+            User user = userRepository.findByUserIdxAndStatusEquals(userIdx, ACTIVE).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
 
             List<String> produceStatuses = Arrays.asList(FOR_SALE, SOLD_OUT);
             List<MyPageResponse.Produce> produceList = produceRepository.findTop4ByUserAndStatusInOrderByCreatedDateDesc(user, produceStatuses)
@@ -194,7 +191,7 @@ public class UserService {
     public ProfileResponse getProfile() throws BaseException {
         try {
             Long userIdx = authService.getUserIdxFromToken();
-            User user = userRepository.findByUserIdxAndStatusEquals(userIdx, ACTIVE).orElseThrow(() -> new BaseException(INVALID_LOGIN_ID));
+            User user = userRepository.findByUserIdxAndStatusEquals(userIdx, ACTIVE).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
 
             return new ProfileResponse(user.getNickname(), user.getContact(), user.getProfileImage());
         } catch (BaseException e) {
