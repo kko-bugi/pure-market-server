@@ -8,6 +8,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -32,18 +33,17 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     private final AuthService authService;
     private final UserService userService;
-    private final RedisTemplate redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
 
-    // WebSecurityConfig에서 permitAll() 해준 url 제외 전부 해당 필터 통과
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
         String accessToken = getTokenFromRequest(request);
         if (accessToken != null && authService.validateToken(accessToken)) { // validation
-            String isLogout = (String)redisTemplate.opsForValue().get(accessToken);
+            String isLogout = redisTemplate.opsForValue().get(accessToken);
 
             // logout 상태가 아닌 경우
             if (ObjectUtils.isEmpty(isLogout)) {
-                UsernamePasswordAuthenticationToken authentication = null;
+                UsernamePasswordAuthenticationToken authentication;
                 try {
                     authentication = getAuthenticationFromToken(accessToken);
                 } catch (BaseException e) {
