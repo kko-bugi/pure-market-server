@@ -36,7 +36,8 @@ jobs:
        touch ./${{ secrets.GCS_FILE_NAME }}
        echo "${{ secrets.GCS_FILE }}" > ./${{ secrets.GCS_FILE_NAME }}
       shell: bash
-
+   
+    # grant permisson
     - name: Grant permission for gradlew
       run: chmod +x gradlew
 
