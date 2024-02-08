@@ -21,7 +21,8 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-
+    
+    # create secret files
     - name: create application.yml file
       run: |
         cd ./src/main/resources
@@ -35,7 +36,7 @@ jobs:
        touch ./${{ secrets.GCS_FILE_NAME }}
        echo "${{ secrets.GCS_FILE }}" > ./${{ secrets.GCS_FILE_NAME }}
       shell: bash
-      
+
     - name: Grant permission for gradlew
       run: chmod +x gradlew
 
