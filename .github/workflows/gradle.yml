@@ -29,6 +29,13 @@ jobs:
         echo "${{ secrets.APPLICATION_FILE }}" > ./application.yml
       shell: bash
       
+    - name: create gcs file
+      run: |
+       cd ./src/main/resources
+       touch ./${{ secrets.GCS_FILE_NAME }}
+       echo "${{ secrets.GCS_FILE }}" > ./${{ GCS_FILE_NAME }}
+      shell: bash
+      
     - name: Grant permission for gradlew
       run: chmod +x gradlew
 
