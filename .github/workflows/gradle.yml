@@ -30,7 +30,7 @@ jobs:
         echo "${{ secrets.APPLICATION_FILE }}" > ./application.yml
       shell: bash
 
-    # create gcs file
+    # create gcs secret file
     - name: create-json
       id: create-json
       uses: jsdaniell/create-json@v1.2.3
