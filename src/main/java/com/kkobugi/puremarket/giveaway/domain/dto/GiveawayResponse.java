@@ -18,7 +18,7 @@ public record GiveawayResponse(
         String nickname,
         @Schema(description = "연락처", example = "01012345678")
         String contact,
-        @Schema(description = "글 이미지 url", example = "https://dwffwdfdwbwv")
+        @Schema(description = "프로필 이미지 url", example = "https://dwffwdfdwbwv")
         String profileImage,
         @Schema(description = "글 작성자 여부", example = "true")
         boolean isWriter) {
