@@ -22,15 +22,22 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
     
-    # create secret files
-    - name: create application.yml and gcs file
+    # create application.yml
+    - name: create application.yml
       run: |
         cd ./src/main/resources
         touch ./application.yml
         echo "${{ secrets.APPLICATION_FILE }}" > ./application.yml
-        touch ./${{ secrets.GCS_FILE_NAME }}
-        echo "${{ secrets.GCS_FILE }}" > ./${{ secrets.GCS_FILE_NAME }}
       shell: bash
+
+    # create gcs file
+    - name: create-json
+      id: create-json
+      uses: jsdaniell/create-json@1.2.3
+      with: 
+        name: ${{ secrets.GCS_FILE_NAME }}
+        json: ${{ secrets.GCS_FILE }}
+        dir: /src/main/resources
    
     # grant permisson
     - name: Grant permission for gradlew
