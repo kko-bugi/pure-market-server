@@ -3,7 +3,9 @@ package com.kkobugi.puremarket.produce.presentation;
 import com.kkobugi.puremarket.common.BaseException;
 import com.kkobugi.puremarket.common.BaseResponse;
 import com.kkobugi.puremarket.produce.application.ProduceService;
+import com.kkobugi.puremarket.produce.domain.dto.ProduceListResponse;
 import com.kkobugi.puremarket.produce.domain.dto.ProducePostRequest;
+import com.kkobugi.puremarket.produce.domain.dto.ProduceResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -34,7 +36,7 @@ public class ProduceController {
     @GetMapping("")
     @Operation(summary = "판매글 목록 조회", description = "판매글 전체 목록을 조회한다. 글 목록이 비었을 시 예외처리 없이 빈 리스트를 반환한다.")
     @ApiResponses(value = {@ApiResponse(responseCode = "1000", description = "조회 성공")})
-    public BaseResponse<?> getProduceList() {
+    public BaseResponse<ProduceListResponse> getProduceList() {
         try {
             return new BaseResponse<>(produceService.getProduceList());
         } catch (BaseException e) {
@@ -49,7 +51,7 @@ public class ProduceController {
             @ApiResponse(responseCode = "1000", description = "조회 성공"),
             @ApiResponse(responseCode = "2008", description = "빈 access token", content = @Content(schema = @Schema(implementation = BaseResponse.class))),
             @ApiResponse(responseCode = "2100", description = "잘못된 판매글 Idx", content = @Content(schema = @Schema(implementation = BaseResponse.class)))})
-    public BaseResponse<?> getProduce(@Parameter(description = "판매글 Idx", in = ParameterIn.PATH) @PathVariable Long produceIdx) {
+    public BaseResponse<ProduceResponse> getProduce(@Parameter(description = "판매글 Idx", in = ParameterIn.PATH) @PathVariable Long produceIdx) {
         try {
             return new BaseResponse<>(produceService.getProducePost(produceIdx));
         } catch (BaseException e) {
