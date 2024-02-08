@@ -15,6 +15,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -26,6 +28,7 @@ public class WebSecurityConfig {
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
+                .cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement((sessionManagement) ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -35,8 +38,12 @@ public class WebSecurityConfig {
                                 new AntPathRequestMatcher("/api/v1/users/signup"),
                                 new AntPathRequestMatcher("/api/v1/users/nickname"),
                                 new AntPathRequestMatcher("/api/v1/users/loginId"),
-                                new AntPathRequestMatcher("/api/v1/users/reissue-token")).permitAll()
-                        .anyRequest().authenticated()) //TODO: 마이페이지 접근 권한 설정 추가
+                                new AntPathRequestMatcher("/api/v1/users/reissue-token"),
+                                new AntPathRequestMatcher("/api-docs/**"),
+                                new AntPathRequestMatcher("/swagger-ui/**"),
+                                new AntPathRequestMatcher("/swagger-ui.html"),
+                                new AntPathRequestMatcher("/swagger-resources/**")).permitAll()
+                        .anyRequest().authenticated())
                 .addFilterBefore(new JwtTokenFilter(authService, userService, redisTemplate), UsernamePasswordAuthenticationFilter.class) // 필터 통과
                 .build();
     }
