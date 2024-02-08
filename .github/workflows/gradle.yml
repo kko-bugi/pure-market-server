@@ -65,8 +65,8 @@ jobs:
         username: ${{ secrets.GCP_USERNAME }}
         key: ${{ secrets.GCP_PRIVATEKEY }}  
         script: |
-          sudo docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/puremarket
-          sudo docker rm -f $(docker ps -qa) 2>/dev/null || true
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker pull ${{ secrets.DOCKER_USERNAME }}/puremarket
+          docker rm -f $(docker ps -qa) 2>/dev/null || true
           docker run -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/puremarket
           sudo docker image prune -f
