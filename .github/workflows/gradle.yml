@@ -33,7 +33,7 @@ jobs:
       run: |
        cd ./src/main/resources
        touch ./${{ secrets.GCS_FILE_NAME }}
-       echo "${{ secrets.GCS_FILE }}" > ./${{ GCS_FILE_NAME }}
+       echo "${{ secrets.GCS_FILE }}" > ./${{ secrets.GCS_FILE_NAME }}
       shell: bash
       
     - name: Grant permission for gradlew
