@@ -33,7 +33,7 @@ jobs:
     # create gcs file
     - name: create-json
       id: create-json
-      uses: jsdaniell/create-json@1.2.3
+      uses: jsdaniell/create-json@v1.2.3
       with: 
         name: ${{ secrets.GCS_FILE_NAME }}
         json: ${{ secrets.GCS_FILE }}
