@@ -1,0 +1,64 @@
+name: Java CI with Gradle
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+    
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: create application.yml file
+      run: |
+        cd ./src/main/resources
+        touch ./application.yml
+        echo "${{ secrets.APPLICATION_FILE }}" > ./application.yml
+      shell: bash
+      
+    - name: Grant permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Build with Gradle Wrapper
+      run: ./gradlew build
+
+    # Docker
+    - name: Docker hub login
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        
+    - name: Docker image build
+      run: |
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/puremarket .
+      
+    - name: Docker Hub push
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/puremarket
+
+    # Deploy
+    - name: Deploy to Instance
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.GCP_HOST }}
+        username: ${{ secrets.GCP_USERNAME }}
+        key: ${{ secrets.GCP_PRIVATEKEY }}  
+        script: |
+          sudo docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/puremarket
+          sudo docker rm -f $(docker ps -qa) 2>/dev/null || true
+          docker run -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/puremarket
+          sudo docker image prune -f
