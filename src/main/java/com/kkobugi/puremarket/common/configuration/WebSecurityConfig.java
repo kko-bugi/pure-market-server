@@ -1,5 +1,7 @@
 package com.kkobugi.puremarket.common.configuration;
 
+import com.kkobugi.puremarket.common.JwtAuthenticationEntryPoint;
+import com.kkobugi.puremarket.common.JwtExceptionFilter;
 import com.kkobugi.puremarket.user.application.AuthService;
 import com.kkobugi.puremarket.user.application.UserService;
 import com.kkobugi.puremarket.user.utils.JwtTokenFilter;
@@ -27,12 +29,14 @@ public class WebSecurityConfig {
     private final UserService userService;
     private final AuthService authService;
     private final RedisTemplate<String, String> redisTemplate;
+    private final JwtExceptionFilter jwtExceptionFilter;
+    private final JwtAuthenticationEntryPoint authenticationEntryPoint;
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowedOrigins(List.of("*"));
-        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH"));
+        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "OPTIONS"));
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.setAllowedHeaders(List.of("*"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -59,7 +63,9 @@ public class WebSecurityConfig {
                                 new AntPathRequestMatcher("/swagger-ui.html"),
                                 new AntPathRequestMatcher("/swagger-resources/**")).permitAll()
                         .anyRequest().authenticated())
-                .addFilterBefore(new JwtTokenFilter(authService, userService, redisTemplate), UsernamePasswordAuthenticationFilter.class) // 필터 통과
+                .addFilterBefore(new JwtTokenFilter(authService, userService, redisTemplate), UsernamePasswordAuthenticationFilter.class)
+                //.addFilterBefore(jwtExceptionFilter, new JwtTokenFilter(authService, userService, redisTemplate).getClass())
+                //.exceptionHandling(handler -> handler.authenticationEntryPoint(authenticationEntryPoint))
                 .build();
     }
 }
