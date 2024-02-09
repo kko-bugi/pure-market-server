@@ -70,6 +70,7 @@ jobs:
         script: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
           docker pull ${{ secrets.DOCKER_USERNAME }}/puremarket
-          docker rm -f $(docker ps -qa) 2>/dev/null || true
+          docker stop $(docker ps -qa)
           docker run -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/puremarket
-          sudo docker image prune -f
+          docker rm $(docker ps --filter 'status=exited' -qa)
+          docker image prune -f
