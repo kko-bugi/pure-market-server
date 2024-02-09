@@ -26,7 +26,6 @@ public class RedisConfig {
         return new LettuceConnectionFactory(host, port);
     }
 
-    // setKeySerializer, setValueSerializer 설정으로 redis-cli를 통해 직접 데이터를 보는게 가능하다.
     @Bean
     public RedisTemplate<String, Object> redisTemplate() {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
