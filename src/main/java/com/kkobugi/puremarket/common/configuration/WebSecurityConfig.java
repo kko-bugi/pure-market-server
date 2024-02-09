@@ -1,7 +1,5 @@
 package com.kkobugi.puremarket.common.configuration;
 
-import com.kkobugi.puremarket.common.JwtAuthenticationEntryPoint;
-import com.kkobugi.puremarket.common.JwtExceptionFilter;
 import com.kkobugi.puremarket.user.application.AuthService;
 import com.kkobugi.puremarket.user.application.UserService;
 import com.kkobugi.puremarket.user.utils.JwtTokenFilter;
@@ -29,8 +27,6 @@ public class WebSecurityConfig {
     private final UserService userService;
     private final AuthService authService;
     private final RedisTemplate<String, String> redisTemplate;
-    private final JwtExceptionFilter jwtExceptionFilter;
-    private final JwtAuthenticationEntryPoint authenticationEntryPoint;
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -64,8 +60,6 @@ public class WebSecurityConfig {
                                 new AntPathRequestMatcher("/swagger-resources/**")).permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(new JwtTokenFilter(authService, userService, redisTemplate), UsernamePasswordAuthenticationFilter.class)
-                //.addFilterBefore(jwtExceptionFilter, new JwtTokenFilter(authService, userService, redisTemplate).getClass())
-                //.exceptionHandling(handler -> handler.authenticationEntryPoint(authenticationEntryPoint))
                 .build();
     }
 }
