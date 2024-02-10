@@ -69,8 +69,9 @@ public class ProduceService {
     // 판매글 상세 조회
     public ProduceResponse getProducePost(Long produceIdx) throws BaseException {
         try {
-            Long userIdx = authService.getUserIdxFromToken();
+            Long userIdx = authService.getUserIdx();
             Produce produce = produceRepository.findById(produceIdx).orElseThrow(() -> new BaseException(INVALID_PRODUCE_IDX));
+            if (produce.getStatus().equals(INACTIVE)) throw new BaseException(ALREADY_DELETED_PRODUCE);
 
             boolean isWriter = false;
             if (userIdx != null && produce.getUser() != null) {
@@ -89,7 +90,8 @@ public class ProduceService {
     @Transactional(rollbackFor = Exception.class)
     public void postProduce(MultipartFile image, ProducePostRequest producePostRequest) throws BaseException {
         try {
-            User writer = userRepository.findByUserIdx(authService.getUserIdxFromToken()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            Long userIdx = getUserIdxWithValidation();
+            User writer = userRepository.findByUserIdx(userIdx).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
 
             // upload image
             String fullPath = gcsService.uploadImage("produce", image);
@@ -108,7 +110,8 @@ public class ProduceService {
     // 판매 상태 변경
     public void changeProduceStatus(Long produceIdx) throws BaseException {
         try {
-            User user = userRepository.findByUserIdx(authService.getUserIdxFromToken()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            Long userIdx = getUserIdxWithValidation();
+            User user = userRepository.findByUserIdx(userIdx).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
             Produce produce = produceRepository.findById(produceIdx).orElseThrow(() -> new BaseException(INVALID_PRODUCE_IDX));
 
             validateWriter(user, produce);
@@ -125,7 +128,8 @@ public class ProduceService {
     // 판매글 삭제
     public void deleteProduce(Long produceIdx) throws BaseException {
         try {
-            User user = userRepository.findByUserIdx(authService.getUserIdxFromToken()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            Long userIdx = getUserIdxWithValidation();
+            User user = userRepository.findByUserIdx(userIdx).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
             Produce produce = produceRepository.findById(produceIdx).orElseThrow(() -> new BaseException(INVALID_PRODUCE_IDX));
 
             validateWriter(user, produce);
@@ -137,6 +141,12 @@ public class ProduceService {
         } catch (Exception e) {
             throw new BaseException(DATABASE_ERROR);
         }
+    }
+
+    private Long getUserIdxWithValidation() throws BaseException {
+        Long userIdx = authService.getUserIdx();
+        if (userIdx == null) throw new BaseException(NULL_ACCESS_TOKEN);
+        return userIdx;
     }
 
     private static void validateWriter(User user, Produce produce) throws BaseException {
