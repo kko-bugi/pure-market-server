@@ -2,7 +2,7 @@ package com.kkobugi.puremarket.common.configuration;
 
 import com.kkobugi.puremarket.user.application.AuthService;
 import com.kkobugi.puremarket.user.application.UserService;
-import com.kkobugi.puremarket.user.utils.JwtTokenFilter;
+import com.kkobugi.puremarket.user.utils.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +19,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -28,17 +27,23 @@ public class WebSecurityConfig {
     private final UserService userService;
     private final AuthService authService;
     private final RedisTemplate<String, String> redisTemplate;
+//    private final AuthenticationEntryPoint entryPoint;
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "OPTIONS"));
-        //configuration.setAllowCredentials(false);
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:5174", "https://pure-market-client.vercel.app"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
+    private static final String[] PERMIT_URL = {
+            "/api/v1/users/login", "/api/v1/users/signup", "/api/v1/users/nickname", "/api/v1/users/loginId",
+            "/api/v1/users/reissue-token", "/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger-resources/**"
+    };
 
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -48,22 +53,15 @@ public class WebSecurityConfig {
                 .sessionManagement((sessionManagement) ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((authorizeRequests) -> authorizeRequests
+                        .requestMatchers(PERMIT_URL).permitAll()
                         .requestMatchers(
-                                new AntPathRequestMatcher("/api/v1/users/login"),
-                                new AntPathRequestMatcher("/api/v1/users/signup"),
-                                new AntPathRequestMatcher("/api/v1/users/nickname"),
-                                new AntPathRequestMatcher("/api/v1/users/loginId"),
-                                new AntPathRequestMatcher("/api/v1/users/reissue-token"),
                                 new AntPathRequestMatcher("/api/v1/produce/**", "GET"),
                                 new AntPathRequestMatcher("/api/v1/giveaway/**", "GET"),
                                 new AntPathRequestMatcher("/api/v1/recipe/**", "GET"),
-                                new AntPathRequestMatcher("/api/v1/home", "GET"),
-                                new AntPathRequestMatcher("/api-docs/**"),
-                                new AntPathRequestMatcher("/swagger-ui/**"),
-                                new AntPathRequestMatcher("/swagger-ui.html"),
-                                new AntPathRequestMatcher("/swagger-resources/**")).permitAll()
+                                new AntPathRequestMatcher("/api/v1/home", "GET")).permitAll()
                         .anyRequest().authenticated())
-                .addFilterBefore(new JwtTokenFilter(authService, userService, redisTemplate), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtAuthenticationFilter(authService, userService, redisTemplate), UsernamePasswordAuthenticationFilter.class)
+                //.exceptionHandling(handler -> handler.authenticationEntryPoint(entryPoint))
                 .build();
     }
 }
