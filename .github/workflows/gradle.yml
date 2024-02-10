@@ -1,0 +1,76 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+    
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+    
+    # create application.yml
+    - name: create application.yml
+      run: |
+        cd ./src/main/resources
+        touch ./application.yml
+        echo "${{ secrets.APPLICATION_FILE }}" > ./application.yml
+      shell: bash
+
+    # create gcs secret file
+    - name: create-json
+      id: create-json
+      uses: jsdaniell/create-json@v1.2.3
+      with: 
+        name: ${{ secrets.GCS_FILE_NAME }}
+        json: ${{ secrets.GCS_FILE }}
+        dir: /src/main/resources
+   
+    # grant permisson
+    - name: Grant permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Build with Gradle Wrapper
+      run: ./gradlew build -x test
+
+    # Docker
+    - name: Docker hub login
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        
+    - name: Docker image build
+      run: |
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/puremarket .
+      
+    - name: Docker Hub push
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/puremarket
+
+    # Deploy
+    - name: Deploy to Instance
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.GCP_HOST }}
+        username: ${{ secrets.GCP_USERNAME }}
+        key: ${{ secrets.GCP_PRIVATEKEY }}  
+        script: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker pull ${{ secrets.DOCKER_USERNAME }}/puremarket
+          docker stop $(docker ps -qa)
+          docker run -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/puremarket
+          docker rm $(docker ps --filter 'status=exited' -qa)
+          docker image prune -f
