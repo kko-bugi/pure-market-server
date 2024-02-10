@@ -74,7 +74,7 @@ public class AuthService {
     // userIdx 추출
     public Long getUserIdx() throws BaseException {
         String token = getTokenFromRequest();
-        if (token == null) return null;
+        if (token == null || token.equals("")) return null;
         return getUserIdxFromToken(token);
     }
 
