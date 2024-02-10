@@ -26,7 +26,7 @@ import static com.kkobugi.puremarket.common.enums.BaseResponseStatus.INVALID_USE
 
 @Component
 @RequiredArgsConstructor
-public class JwtTokenFilter extends OncePerRequestFilter {
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Value("${jwt.secret-key}")
     private String secretKey;
