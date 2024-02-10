@@ -60,8 +60,9 @@ public class RecipeService {
     // 레시피글 상세 조회
     public RecipeResponse getRecipe(Long recipeIdx) throws BaseException {
         try {
-            Long userIdx = authService.getUserIdxFromToken();
+            Long userIdx = authService.getUserIdx();
             Recipe recipe = recipeRepository.findById(recipeIdx).orElseThrow(() -> new BaseException(INVALID_RECIPE_IDX));
+            if (recipe.getStatus().equals(INACTIVE)) throw new BaseException(ALREADY_DELETED_RECIPE);
 
             boolean isWriter = false;
             if (userIdx != null && recipe.getUser() != null) {
@@ -100,7 +101,8 @@ public class RecipeService {
     @Transactional(rollbackFor = Exception.class)
     public void postRecipe(MultipartFile image, RecipePostRequest recipePostRequest) throws BaseException {
         try {
-            User writer = userRepository.findByUserIdx(authService.getUserIdxFromToken()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            Long userIdx = getUserIdxWithValidation();
+            User writer = userRepository.findByUserIdx(userIdx).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
 
             // upload image
             String fullPath = gcsService.uploadImage("recipe", image);
@@ -134,7 +136,8 @@ public class RecipeService {
     // 레시피글 삭제
     public void deleteRecipe(Long recipeIdx) throws BaseException {
         try {
-            User user = userRepository.findByUserIdx(authService.getUserIdxFromToken()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            Long userIdx = getUserIdxWithValidation();
+            User user = userRepository.findByUserIdx(userIdx).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
             Recipe recipe = recipeRepository.findById(recipeIdx).orElseThrow(() -> new BaseException(INVALID_RECIPE_IDX));
 
             validateWriter(user, recipe);
@@ -151,5 +154,12 @@ public class RecipeService {
     private static void validateWriter(User user, Recipe recipe) throws BaseException {
         if (!recipe.getUser().equals(user)) throw new BaseException(NO_RECIPE_WRITER);
         if (recipe.getStatus().equals(INACTIVE)) throw new BaseException(ALREADY_DELETED_RECIPE);
+    }
+
+    // 비회원 예외처리
+    private Long getUserIdxWithValidation() throws BaseException {
+        Long userIdx = authService.getUserIdx();
+        if (userIdx == null) throw new BaseException(NULL_ACCESS_TOKEN);
+        return userIdx;
     }
 }
