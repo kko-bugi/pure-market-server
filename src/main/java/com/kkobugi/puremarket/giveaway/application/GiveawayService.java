@@ -69,8 +69,9 @@ public class GiveawayService {
     // 나눔글 상세 조회
     public GiveawayResponse getGiveawayPost(Long giveawayIdx) throws BaseException {
         try {
-            Long userIdx = authService.getUserIdxFromToken();
+            Long userIdx = authService.getUserIdx();
             Giveaway giveaway = giveawayRepository.findById(giveawayIdx).orElseThrow(() -> new BaseException(INVALID_GIVEAWAY_IDX));
+            if (giveaway.getStatus().equals(INACTIVE)) throw new BaseException(ALREADY_DELETED_GIVEAWAY);
 
             boolean isWriter = false;
             if (userIdx != null && giveaway.getUser() != null) {
@@ -89,7 +90,8 @@ public class GiveawayService {
     @Transactional(rollbackFor = Exception.class)
     public void postGiveaway(MultipartFile image, GiveawayPostRequest giveawayPostRequest) throws BaseException {
         try {
-            User writer = userRepository.findByUserIdx(authService.getUserIdxFromToken()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            Long userIdx = getUserIdxWithValidation();
+            User writer = userRepository.findByUserIdx(userIdx).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
 
             // upload image
             String fullPath = gcsService.uploadImage("giveaway", image);
@@ -110,7 +112,8 @@ public class GiveawayService {
     @Transactional(rollbackFor = Exception.class)
     public void changeGiveawayStatus(Long giveawayIdx) throws BaseException {
         try {
-            User user = userRepository.findByUserIdx(authService.getUserIdxFromToken()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            Long userIdx = getUserIdxWithValidation();
+            User user = userRepository.findByUserIdx(userIdx).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
             Giveaway giveaway = giveawayRepository.findById(giveawayIdx).orElseThrow(() -> new BaseException(INVALID_GIVEAWAY_IDX));
 
             validateWriter(user, giveaway);
@@ -132,7 +135,8 @@ public class GiveawayService {
     // 나눔글 삭제
     public void deleteGiveaway(Long giveawayIdx) throws BaseException {
         try {
-            User user = userRepository.findByUserIdx(authService.getUserIdxFromToken()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            Long userIdx = getUserIdxWithValidation();
+            User user = userRepository.findByUserIdx(userIdx).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
             Giveaway giveaway = giveawayRepository.findById(giveawayIdx).orElseThrow(() -> new BaseException(INVALID_GIVEAWAY_IDX));
 
             validateWriter(user, giveaway);
@@ -144,5 +148,12 @@ public class GiveawayService {
         } catch (Exception e) {
             throw new BaseException(DATABASE_ERROR);
         }
+    }
+
+    // 비회원 예외처리
+    private Long getUserIdxWithValidation() throws BaseException {
+        Long userIdx = authService.getUserIdx();
+        if (userIdx == null) throw new BaseException(NULL_ACCESS_TOKEN);
+        return userIdx;
     }
 }

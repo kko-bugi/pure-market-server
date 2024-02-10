@@ -72,7 +72,7 @@ public class UserController {
             @ApiResponse(responseCode = "2008", description = "빈 Access Token", content = @Content(schema = @Schema(implementation = BaseResponse.class)))})
     public BaseResponse<?> logout() {
         try{
-            userService.logout(authService.getUserIdxFromToken());
+            userService.logout(authService.getUserIdx());
             return new BaseResponse<>(SUCCESS);
         } catch (BaseException e){
             return new BaseResponse<>(e.getStatus());
@@ -132,9 +132,9 @@ public class UserController {
             @ApiResponse(responseCode = "2000", description = "잘못된 userIdx", content = @Content(schema = @Schema(implementation = BaseResponse.class))),
             @ApiResponse(responseCode = "2006", description = "잘못된 Access Token", content = @Content(schema = @Schema(implementation = BaseResponse.class))),
             @ApiResponse(responseCode = "2008", description = "빈 Access Token", content = @Content(schema = @Schema(implementation = BaseResponse.class)))})
-    public BaseResponse<?> signout() {
+    public BaseResponse<?> signOut() {
         try{
-            userService.signout(authService.getUserIdxFromToken());
+            userService.signOut(authService.getUserIdx());
             return new BaseResponse<>(SUCCESS);
         } catch (BaseException e){
             return new BaseResponse<>(e.getStatus());

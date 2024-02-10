@@ -56,7 +56,6 @@ public class UserService {
         } catch (BaseException e) {
             throw e;
         } catch (Exception e) {
-            e.printStackTrace();
             throw new BaseException(DATABASE_ERROR);
         }
     }
@@ -129,7 +128,7 @@ public class UserService {
 
     // 회원 탈퇴
     @Transactional(rollbackFor = Exception.class)
-    public void signout(Long userIdx) throws BaseException {
+    public void signOut(Long userIdx) throws BaseException {
         try {
             User user = userRepository.findByUserIdxAndStatusEquals(userIdx, ACTIVE).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
             authService.signout(user);
@@ -145,7 +144,7 @@ public class UserService {
     // 마이페이지 조회
     public MyPageResponse getMyPage() throws BaseException {
         try {
-            Long userIdx = authService.getUserIdxFromToken();
+            Long userIdx = getUserIdxWithValidation();
             User user = userRepository.findByUserIdxAndStatusEquals(userIdx, ACTIVE).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
 
             List<String> produceStatuses = Arrays.asList(FOR_SALE, SOLD_OUT);
@@ -190,7 +189,7 @@ public class UserService {
     // 유저 프로필 조회
     public ProfileResponse getProfile() throws BaseException {
         try {
-            Long userIdx = authService.getUserIdxFromToken();
+            Long userIdx = authService.getUserIdx();
             User user = userRepository.findByUserIdxAndStatusEquals(userIdx, ACTIVE).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
 
             return new ProfileResponse(user.getNickname(), user.getContact(), user.getProfileImage());
@@ -199,5 +198,12 @@ public class UserService {
         } catch (Exception e) {
             throw new BaseException(DATABASE_ERROR);
         }
+    }
+
+    // 비회원 예외처리
+    private Long getUserIdxWithValidation() throws BaseException {
+        Long userIdx = authService.getUserIdx();
+        if (userIdx == null) throw new BaseException(NULL_ACCESS_TOKEN);
+        return userIdx;
     }
 }

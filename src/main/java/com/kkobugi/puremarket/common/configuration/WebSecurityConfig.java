@@ -14,8 +14,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import static org.springframework.security.config.Customizer.withDefaults;
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -26,9 +30,20 @@ public class WebSecurityConfig {
     private final RedisTemplate<String, String> redisTemplate;
 
     @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("*"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "OPTIONS"));
+        //configuration.setAllowCredentials(false);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
-                .cors(withDefaults())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement((sessionManagement) ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -39,12 +54,16 @@ public class WebSecurityConfig {
                                 new AntPathRequestMatcher("/api/v1/users/nickname"),
                                 new AntPathRequestMatcher("/api/v1/users/loginId"),
                                 new AntPathRequestMatcher("/api/v1/users/reissue-token"),
+                                new AntPathRequestMatcher("/api/v1/produce/**", "GET"),
+                                new AntPathRequestMatcher("/api/v1/giveaway/**", "GET"),
+                                new AntPathRequestMatcher("/api/v1/recipe/**", "GET"),
+                                new AntPathRequestMatcher("/api/v1/home", "GET"),
                                 new AntPathRequestMatcher("/api-docs/**"),
                                 new AntPathRequestMatcher("/swagger-ui/**"),
                                 new AntPathRequestMatcher("/swagger-ui.html"),
                                 new AntPathRequestMatcher("/swagger-resources/**")).permitAll()
                         .anyRequest().authenticated())
-                .addFilterBefore(new JwtTokenFilter(authService, userService, redisTemplate), UsernamePasswordAuthenticationFilter.class) // 필터 통과
+                .addFilterBefore(new JwtTokenFilter(authService, userService, redisTemplate), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 }
