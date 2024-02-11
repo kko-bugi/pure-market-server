@@ -77,7 +77,7 @@ public class UserService {
             User user = userRepository.findByLoginId(loginRequest.loginId()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
             if(!encoder.matches(loginRequest.password(), user.getPassword())) throw new BaseException(INVALID_PASSWORD);
 
-            JwtDto jwtDto = authService.generateToken(user);
+            JwtDto jwtDto = authService.generateToken(user); 
             user.login(); // active
             userRepository.save(user);
 
@@ -99,10 +99,10 @@ public class UserService {
 
     // 로그아웃
     @Transactional(rollbackFor = Exception.class)
-    public void logout(Long userIdx) throws BaseException {
+    public void logout(Long userIdx, String refreshToken ) throws BaseException {
         try {
             User user = userRepository.findByUserIdxAndStatusEquals(userIdx, ACTIVE).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
-            authService.logout(user);
+            authService.logout(refreshToken);
             user.logout(); // LOGOUT
             userRepository.save(user);
         } catch (BaseException e) {
@@ -112,13 +112,20 @@ public class UserService {
         }
     }
 
-    // accessToken 재발급
+    // Access Token 재발급
     @Transactional(rollbackFor = Exception.class)
-    public JwtDto reissueToken(ReissueTokenRequest reissueTokenRequest) throws BaseException {
+    public TokenResponse reissueAccessToken(ReissueTokenRequest reissueTokenRequest) throws BaseException {
         try {
-            User user = userRepository.findByLoginIdAndStatusEquals(reissueTokenRequest.loginId(), ACTIVE).orElseThrow(() -> new BaseException(NO_MATCH_USER));
+            String loginId = authService.getLoginIdFromRedis(reissueTokenRequest.refreshToken());
+            System.out.println(loginId);
+            User user = userRepository.findByLoginIdAndStatusEquals(loginId, ACTIVE).orElseThrow(() -> new BaseException(NO_MATCH_USER));
+
             authService.validateRefreshToken(reissueTokenRequest);
-            return authService.generateToken(user);
+
+            // refresh token이 만료되지 않은 경우 access token 재발급
+            if (authService.checkExistsRedis(reissueTokenRequest.refreshToken())) {
+                return new TokenResponse(authService.generateAccessToken(user));
+            } else throw new BaseException(INVALID_REFRESH_TOKEN);
         } catch (BaseException e) {
             throw e;
         } catch (Exception e) {
@@ -128,10 +135,10 @@ public class UserService {
 
     // 회원 탈퇴
     @Transactional(rollbackFor = Exception.class)
-    public void signOut(Long userIdx) throws BaseException {
+    public void signOut(Long userIdx, String refreshToken) throws BaseException {
         try {
             User user = userRepository.findByUserIdxAndStatusEquals(userIdx, ACTIVE).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
-            authService.signout(user);
+            authService.signOut(refreshToken);
             user.signout(); // INACTIVE
             userRepository.save(user);
         } catch (BaseException e) {

@@ -19,9 +19,14 @@ public enum BaseResponseStatus {
     UNMATCHED_PASSWORD(false, 2003, "비밀번호가 일치하지 않습니다."),
     INVALID_PASSWORD(false, 2004, "비밀번호가 잘못되었습니다."),
     INVALID_LOGIN_ID(false, 2005, "잘못된 아이디입니다."),
-    INVALID_ACCESS_TOKEN(false, 2006, "잘못된 AccessToken 입니다."),
-    INVALID_REFRESH_TOKEN(false, 2007, "잘못된 Refresh Token 입니다."),
-    NULL_ACCESS_TOKEN(false, 2008, "Access Token을 입력해주세요."),
+    INVALID_ACCESS_TOKEN(false, 2006, "잘못된 access token 입니다."),
+    INVALID_REFRESH_TOKEN(false, 2007, "잘못된 refresh token 입니다."),
+    NULL_ACCESS_TOKEN(false, 2008, "access token을 입력해주세요."),
+    INVALID_JWT_SIGNATURE(false, 2009, "유효하지 않은 JWT 시그니처입니다."),
+    EXPIRED_JWT_TOKEN(false, 2010, "만료된 토큰입니다."),
+    UNSUPPORTED_JWT_TOKEN(false, 2011, "지원하지 않는 JWT 토큰 형식입니다."),
+    EMPTY_JWT_CLAIM(false, 2012, "JWT claims string이 비었습니다."),
+    EXPIRED_REFRESH_TOKEN(false, 2013, "만료된 refresh token 입니다."),
 
     // produce(2100-2199)
     INVALID_PRODUCE_IDX(false, 2100, "잘못된 판매글 idx 입니다."),
