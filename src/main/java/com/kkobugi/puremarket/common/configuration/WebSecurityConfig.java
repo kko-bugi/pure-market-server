@@ -1,5 +1,6 @@
 package com.kkobugi.puremarket.common.configuration;
 
+import com.kkobugi.puremarket.common.JwtExceptionFilter;
 import com.kkobugi.puremarket.user.application.AuthService;
 import com.kkobugi.puremarket.user.application.UserService;
 import com.kkobugi.puremarket.user.utils.JwtAuthenticationFilter;
@@ -27,6 +28,7 @@ public class WebSecurityConfig {
     private final UserService userService;
     private final AuthService authService;
     private final RedisTemplate<String, String> redisTemplate;
+    private final JwtExceptionFilter jwtExceptionFilter;
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
@@ -69,6 +71,7 @@ public class WebSecurityConfig {
                                 new AntPathRequestMatcher("/api/v1/home", "GET")).permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(new JwtAuthenticationFilter(authService, userService, redisTemplate), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class)
                 .build();
     }
 }
