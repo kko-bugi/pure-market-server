@@ -67,7 +67,7 @@ public class AuthService {
                 .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpireTime))
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
-        redisTemplate.opsForValue().set("REFRESH_TOKEN:"+user.getLoginId(), refreshToken, Duration.ofMillis(refreshTokenExpireTime));
+        redisTemplate.opsForValue().set(refreshToken, user.getLoginId(), Duration.ofMillis(refreshTokenExpireTime));
         return refreshToken;
     }
 
@@ -122,37 +122,40 @@ public class AuthService {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return true;
         } catch (SignatureException ex) {
-
             System.out.println("Invalid JWT signature");
+            throw ex;
         } catch (MalformedJwtException ex) {
             System.out.println("Invalid JWT token");
+            throw ex;
         } catch (ExpiredJwtException ex) {
             System.out.println("Expired JWT token");
+            throw ex;
         } catch (UnsupportedJwtException ex) {
             System.out.println("Unsupported JWT token");
+            throw ex;
         } catch (IllegalArgumentException ex) {
             System.out.println("JWT claims string is empty.");
+            throw ex;
         }
-        return false;
     }
 
     // 로그아웃
-    public void logout(User user) throws BaseException {
+    public void logout(String refreshToken) throws BaseException {
         // 토큰 유효성 검사
         String accessToken = getTokenFromRequest();
         if (!validateToken(accessToken)) throw new BaseException(BaseResponseStatus.INVALID_ACCESS_TOKEN);
 
-        deleteFromRedis(user);
+        deleteFromRedis(refreshToken);
         registerBlackList(accessToken, LOGOUT);
     }
 
     // 회원 탈퇴
-    public void signout(User user) throws BaseException {
+    public void signOut(String refreshToken) throws BaseException {
         // 토큰 유효성 검사
         String accessToken = getTokenFromRequest();
         if (!validateToken(accessToken)) throw new BaseException(BaseResponseStatus.INVALID_ACCESS_TOKEN);
 
-        deleteFromRedis(user);
+        deleteFromRedis(refreshToken);
         registerBlackList(accessToken, INACTIVE);
     }
 
@@ -164,9 +167,8 @@ public class AuthService {
     }
 
     // redis에서 refreshToken 삭제
-    private void deleteFromRedis(User user) {
-        String redisKey = "REFRESH_TOKEN:"+ user.getLoginId();
-        if(redisTemplate.opsForValue().get(redisKey) != null) redisTemplate.delete(redisKey);
+    private void deleteFromRedis(String refreshToken) {
+        if(redisTemplate.opsForValue().get(refreshToken) != null) redisTemplate.delete(refreshToken);
     }
 
     // 토큰 유효시간
@@ -181,14 +183,19 @@ public class AuthService {
             String refreshTokenFromRequest = reissueTokenRequest.refreshToken();
             if (refreshTokenFromRequest == null || refreshTokenFromRequest.isEmpty())
                 throw new BaseException(INVALID_REFRESH_TOKEN);
-
-            String refreshTokenFromRedis = redisTemplate.opsForValue().get("REFRESH_TOKEN:"+reissueTokenRequest.loginId());
-            if (!refreshTokenFromRequest.equals(refreshTokenFromRedis))
-                throw new BaseException(INVALID_REFRESH_TOKEN);
         } catch (BaseException e) {
             throw e;
         } catch (Exception e) {
             throw new BaseException(DATABASE_ERROR);
         }
+    }
+
+    public boolean checkExistsRedis(String refreshToken) throws BaseException {
+        if (redisTemplate.opsForValue().get(refreshToken) != null) return true;
+        else throw new BaseException(EXPIRED_REFRESH_TOKEN);
+    }
+
+    public String getLoginIdFromRedis(String refreshToken) {
+        return redisTemplate.opsForValue().get(refreshToken);
     }
 }

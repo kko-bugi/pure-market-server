@@ -70,9 +70,9 @@ public class UserController {
             @ApiResponse(responseCode = "2003", description = "잘못된 비밀번호", content = @Content(schema = @Schema(implementation = BaseResponse.class))),
             @ApiResponse(responseCode = "2006", description = "잘못된 Access Token", content = @Content(schema = @Schema(implementation = BaseResponse.class))),
             @ApiResponse(responseCode = "2008", description = "빈 Access Token", content = @Content(schema = @Schema(implementation = BaseResponse.class)))})
-    public BaseResponse<?> logout() {
+    public BaseResponse<?> logout(@RequestBody TokenDto tokenDto) {
         try{
-            userService.logout(authService.getUserIdx());
+            userService.logout(authService.getUserIdx(), tokenDto.refreshToken());
             return new BaseResponse<>(SUCCESS);
         } catch (BaseException e){
             return new BaseResponse<>(e.getStatus());
@@ -109,16 +109,16 @@ public class UserController {
         }
     }
 
-    // accessToken 재발급
+    // Access Token 재발급
     @PostMapping("/reissue-token")
-    @Operation(summary = "Access Token 재발급", description = "액세스 토큰을 재발급한다.")
+    @Operation(summary = "Access Token 재발급", description = "access token이 만료된 경우, refresh token을 사용해 access token을 재발급한다.)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "1000", description = "재발급 성공"),
             @ApiResponse(responseCode = "2007", description = "잘못된 refresh token", content = @Content(schema = @Schema(implementation = BaseResponse.class))),
             @ApiResponse(responseCode = "3000", description = "존재하지 않는 user", content = @Content(schema = @Schema(implementation = BaseResponse.class)))})
-    public BaseResponse<JwtDto> reissueToken(@RequestBody ReissueTokenRequest reissueTokenRequest) {
+    public BaseResponse<TokenResponse> reissueToken(@RequestBody ReissueTokenRequest reissueTokenRequest) {
         try{
-            return new BaseResponse<>(userService.reissueToken(reissueTokenRequest));
+            return new BaseResponse<>(userService.reissueAccessToken(reissueTokenRequest));
         } catch (BaseException e){
             return new BaseResponse<>(e.getStatus());
         }
@@ -132,9 +132,9 @@ public class UserController {
             @ApiResponse(responseCode = "2000", description = "잘못된 userIdx", content = @Content(schema = @Schema(implementation = BaseResponse.class))),
             @ApiResponse(responseCode = "2006", description = "잘못된 Access Token", content = @Content(schema = @Schema(implementation = BaseResponse.class))),
             @ApiResponse(responseCode = "2008", description = "빈 Access Token", content = @Content(schema = @Schema(implementation = BaseResponse.class)))})
-    public BaseResponse<?> signOut() {
+    public BaseResponse<?> signOut(@RequestBody TokenDto tokenDto) {
         try{
-            userService.signOut(authService.getUserIdx());
+            userService.signOut(authService.getUserIdx(), tokenDto.refreshToken());
             return new BaseResponse<>(SUCCESS);
         } catch (BaseException e){
             return new BaseResponse<>(e.getStatus());
