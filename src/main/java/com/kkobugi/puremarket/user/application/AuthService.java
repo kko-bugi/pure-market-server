@@ -1,7 +1,6 @@
 package com.kkobugi.puremarket.user.application;
 
 import com.kkobugi.puremarket.common.BaseException;
-import com.kkobugi.puremarket.common.enums.BaseResponseStatus;
 import com.kkobugi.puremarket.user.domain.dto.JwtDto;
 import com.kkobugi.puremarket.user.domain.dto.ReissueTokenRequest;
 import com.kkobugi.puremarket.user.domain.entity.User;
@@ -123,19 +122,19 @@ public class AuthService {
             return true;
         } catch (SignatureException ex) {
             System.out.println("Invalid JWT signature");
-            throw ex;
+            throw new JwtException(INVALID_JWT_SIGNATURE.getMessage());
         } catch (MalformedJwtException ex) {
             System.out.println("Invalid JWT token");
-            throw ex;
+            throw new JwtException(INVALID_ACCESS_TOKEN.getMessage());
         } catch (ExpiredJwtException ex) {
             System.out.println("Expired JWT token");
-            throw ex;
+            throw new JwtException(EXPIRED_ACCESS_TOKEN.getMessage());
         } catch (UnsupportedJwtException ex) {
             System.out.println("Unsupported JWT token");
-            throw ex;
+            throw new JwtException(UNSUPPORTED_JWT_TOKEN.getMessage());
         } catch (IllegalArgumentException ex) {
             System.out.println("JWT claims string is empty.");
-            throw ex;
+            throw new JwtException(EMPTY_JWT_CLAIM.getMessage());
         }
     }
 
@@ -143,7 +142,6 @@ public class AuthService {
     public void logout(String refreshToken) throws BaseException {
         // 토큰 유효성 검사
         String accessToken = getTokenFromRequest();
-        if (!validateToken(accessToken)) throw new BaseException(BaseResponseStatus.INVALID_ACCESS_TOKEN);
 
         deleteFromRedis(refreshToken);
         registerBlackList(accessToken, LOGOUT);
@@ -153,7 +151,6 @@ public class AuthService {
     public void signOut(String refreshToken) throws BaseException {
         // 토큰 유효성 검사
         String accessToken = getTokenFromRequest();
-        if (!validateToken(accessToken)) throw new BaseException(BaseResponseStatus.INVALID_ACCESS_TOKEN);
 
         deleteFromRedis(refreshToken);
         registerBlackList(accessToken, INACTIVE);
