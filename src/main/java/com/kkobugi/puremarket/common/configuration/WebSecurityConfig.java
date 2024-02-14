@@ -34,7 +34,16 @@ public class WebSecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5174", "https://pure-market-client.vercel.app"));
+        configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5174", "https://pure-market-client.vercel.app",
+                "https://pure-market-client-kkobugi.vercel.app", "https://pure-market-client-git-main-kkobugi.vercel.app",
+                "https://pure-market-client-git-deployment-kkobugi.vercel.app",
+                "https://pure-market-client-git-shopping-kkobugi.vercel.app",
+                "https://pure-market-client-git-login-kkobugi.vercel.app",
+                "https://pure-market-client-git-mypage-kkobugi.vercel.app",
+                "https://pure-market-client-git-recipe-kkobugi.vercel.app",
+                "https://pure-market-client-git-share-kkobugi.vercel.app",
+                "https://pure-market-client-git-homenew-kkobugi.vercel.app",
+                "https://pure-market-client-git-signup-kkobugi.vercel.app"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
