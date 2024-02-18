@@ -46,7 +46,7 @@ jobs:
     - name: Build with Gradle Wrapper
       run: ./gradlew build -x test
 
-    # Docker
+    # docker
     - name: Docker hub login
       uses: docker/login-action@v3
       with:
@@ -60,7 +60,7 @@ jobs:
     - name: Docker Hub push
       run: docker push ${{ secrets.DOCKER_USERNAME }}/puremarket
 
-    # Deploy
+    # deploy
     - name: Deploy to Instance
       uses: appleboy/ssh-action@master
       with:
