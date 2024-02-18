@@ -31,7 +31,8 @@ public class AuthService {
     private int accessTokenExpireTime;
 
     @Value("${jwt.refresh-token-validity-in-millis}")
-    private int refreshTokenExpireTime;
+    private Long refreshTokenExpireTime;
+
     @Value("${jwt.secret-key}")
     private String secretKey;
 
