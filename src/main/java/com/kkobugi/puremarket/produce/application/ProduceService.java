@@ -136,7 +136,7 @@ public class ProduceService {
             validateWriter(user, produce);
 
             produce.delete();
-            boolean isDeleted = gcsService.deleteImage(produce);
+            boolean isDeleted = gcsService.deleteImage(produce.getProduceImage());
             if (!isDeleted) throw new BaseException(IMAGE_DELETE_FAIL);
 
             produceRepository.save(produce);
