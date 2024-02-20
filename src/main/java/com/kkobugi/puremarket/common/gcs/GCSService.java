@@ -2,6 +2,7 @@ package com.kkobugi.puremarket.common.gcs;
 
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
+import com.kkobugi.puremarket.produce.domain.entity.Produce;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -31,5 +32,12 @@ public class GCSService {
                         .setContentType(type)
                         .build(), multipartFile.getInputStream());
         return fullPath;
+    }
+
+    // 이미지 삭제
+    public boolean deleteImage(Produce produce) {
+        String imageUrl = produce.getProduceImage();
+        String fullPath = imageUrl.substring(("https://storage.googleapis.com/"+bucketName+"/").length());
+        return storage.delete(bucketName, fullPath);
     }
 }
