@@ -126,6 +126,7 @@ public class ProduceService {
     }
 
     // 판매글 삭제
+    @Transactional(rollbackFor = Exception.class)
     public void deleteProduce(Long produceIdx) throws BaseException {
         try {
             Long userIdx = getUserIdxWithValidation();
@@ -135,6 +136,9 @@ public class ProduceService {
             validateWriter(user, produce);
 
             produce.delete();
+            boolean isDeleted = gcsService.deleteImage(produce);
+            if (!isDeleted) throw new BaseException(IMAGE_DELETE_FAIL);
+
             produceRepository.save(produce);
         } catch (BaseException e) {
             throw e;
