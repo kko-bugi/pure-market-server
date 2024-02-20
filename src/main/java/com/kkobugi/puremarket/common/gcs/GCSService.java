@@ -32,4 +32,10 @@ public class GCSService {
                         .build(), multipartFile.getInputStream());
         return fullPath;
     }
+
+    // 이미지 삭제
+    public boolean deleteImage(String imageUrl) {
+        String fullPath = imageUrl.substring(("https://storage.googleapis.com/"+bucketName+"/").length());
+        return storage.delete(bucketName, fullPath);
+    }
 }

@@ -26,7 +26,7 @@ public class Giveaway extends BaseEntity {
     @JoinColumn(nullable = false, name = "userIdx")
     private User user;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 32)
     private String title;
 
     @Column(nullable = false)

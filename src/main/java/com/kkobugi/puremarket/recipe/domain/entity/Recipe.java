@@ -24,7 +24,7 @@ public class Recipe extends BaseEntity {
     @JoinColumn(nullable = false, name = "userIdx")
     private User user;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 32)
     private String title;
 
     @Column(nullable = false)

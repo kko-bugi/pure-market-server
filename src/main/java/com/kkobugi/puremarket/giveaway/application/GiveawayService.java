@@ -133,6 +133,7 @@ public class GiveawayService {
     }
 
     // 나눔글 삭제
+    @Transactional(rollbackFor = Exception.class)
     public void deleteGiveaway(Long giveawayIdx) throws BaseException {
         try {
             Long userIdx = getUserIdxWithValidation();
@@ -142,6 +143,9 @@ public class GiveawayService {
             validateWriter(user, giveaway);
 
             giveaway.delete();
+            boolean isDeleted = gcsService.deleteImage(giveaway.getGiveawayImage());
+            if (!isDeleted) throw new BaseException(IMAGE_DELETE_FAIL);
+
             giveawayRepository.save(giveaway);
         } catch (BaseException e) {
             throw e;
