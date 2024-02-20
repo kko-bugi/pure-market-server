@@ -134,6 +134,7 @@ public class RecipeService {
     }
 
     // 레시피글 삭제
+    @Transactional(rollbackFor = Exception.class)
     public void deleteRecipe(Long recipeIdx) throws BaseException {
         try {
             Long userIdx = getUserIdxWithValidation();
@@ -143,6 +144,9 @@ public class RecipeService {
             validateWriter(user, recipe);
 
             recipe.delete();
+            boolean isDeleted = gcsService.deleteImage(recipe.getRecipeImage());
+            if (!isDeleted) throw new BaseException(IMAGE_DELETE_FAIL);
+
             recipeRepository.save(recipe);
         } catch (BaseException e) {
             throw e;

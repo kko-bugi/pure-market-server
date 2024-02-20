@@ -57,6 +57,7 @@ public enum BaseResponseStatus {
 
     // produce(3100-3199)
     NULL_PRODUCE_LIST(false, 3100, "판매글 목록이 비었습니다."),
+    IMAGE_DELETE_FAIL(false, 3101, "이미지 삭제에 실패했습니다."),
 
     // recipe(3200-3299)
 
