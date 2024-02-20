@@ -142,12 +142,22 @@ public class RecipeService {
             Recipe recipe = recipeRepository.findById(recipeIdx).orElseThrow(() -> new BaseException(INVALID_RECIPE_IDX));
 
             validateWriter(user, recipe);
-
             recipe.delete();
             boolean isDeleted = gcsService.deleteImage(recipe.getRecipeImage());
             if (!isDeleted) throw new BaseException(IMAGE_DELETE_FAIL);
-
             recipeRepository.save(recipe);
+
+            List<RecipeDescription> recipeDescriptionList = recipeDescriptionRepository.findByRecipeAndStatusEquals(recipe, ACTIVE);
+            for (RecipeDescription description : recipeDescriptionList) {
+                description.delete();
+                recipeDescriptionRepository.save(description);
+            }
+
+            List<Ingredient> ingredientList = ingredientRepository.findByRecipeAndStatusEquals(recipe, ACTIVE);
+            for (Ingredient ingredient : ingredientList) {
+                ingredient.delete();
+                ingredientRepository.save(ingredient);
+            }
         } catch (BaseException e) {
             throw e;
         } catch (Exception e) {
