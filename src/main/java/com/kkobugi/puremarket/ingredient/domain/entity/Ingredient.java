@@ -10,6 +10,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 
+import static com.kkobugi.puremarket.common.constants.Constant.INACTIVE;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -39,5 +41,9 @@ public class Ingredient extends BaseEntity {
         this.name = name;
         this.quantity = quantity;
         this.ingredientType = ingredientType;
+    }
+
+    public void delete() {
+        this.setStatus(INACTIVE);
     }
 }

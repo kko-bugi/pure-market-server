@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface RecipeDescriptionRepository extends JpaRepository<RecipeDescription, Long> {
     List<RecipeDescription> findByRecipeAndStatusEqualsOrderByCreatedDateDesc(Recipe recipe, String status);
+    List<RecipeDescription> findByRecipeAndStatusEquals(Recipe recipe, String status);
 }
