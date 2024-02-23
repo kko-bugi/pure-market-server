@@ -55,4 +55,8 @@ public class Produce extends BaseEntity {
     public void delete() {
         this.setStatus(INACTIVE);
     }
+    public void modifyTitle(String title) { this.title = title; }
+    public void modifyContent(String content) { this.content = content; }
+    public void modifyPrice(Integer price) { this.price = price; }
+    public void modifyImage(String imageUrl) { this.produceImage = imageUrl; }
 }

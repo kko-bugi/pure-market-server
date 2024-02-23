@@ -2,10 +2,7 @@ package com.kkobugi.puremarket.produce.application;
 
 import com.kkobugi.puremarket.common.BaseException;
 import com.kkobugi.puremarket.common.gcs.GCSService;
-import com.kkobugi.puremarket.produce.domain.dto.ProduceEditViewResponse;
-import com.kkobugi.puremarket.produce.domain.dto.ProduceListResponse;
-import com.kkobugi.puremarket.produce.domain.dto.ProducePostRequest;
-import com.kkobugi.puremarket.produce.domain.dto.ProduceResponse;
+import com.kkobugi.puremarket.produce.domain.dto.*;
 import com.kkobugi.puremarket.produce.domain.entity.Produce;
 import com.kkobugi.puremarket.produce.repository.ProduceRepository;
 import com.kkobugi.puremarket.user.application.AuthService;
@@ -151,12 +148,57 @@ public class ProduceService {
     // [작성자] 판매글 수정 화면 조회
     public ProduceEditViewResponse getProduceEditView(Long produceIdx) throws BaseException {
         try {
-            Long userIdx = getUserIdxWithValidation();
             Produce produce = produceRepository.findById(produceIdx).orElseThrow(() -> new BaseException(INVALID_PRODUCE_IDX));
             if (produce.getStatus().equals(INACTIVE)) throw new BaseException(ALREADY_DELETED_PRODUCE);
 
+            User user = userRepository.findByUserIdx(getUserIdxWithValidation()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            validateWriter(user, produce);
+
             return new ProduceEditViewResponse(produce.getTitle(), produce.getContent(), produce.getPrice(), produce.getProduceImage(),
                     produce.getUser().getNickname(), produce.getUser().getContact(), produce.getUser().getProfileImage());
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    // [작성자] 판매글 수정
+    @Transactional(rollbackFor = Exception.class)
+    public void editProduce(Long produceIdx, MultipartFile image, ProduceEditRequest produceEditRequest) throws BaseException {
+        try {
+            Produce produce = produceRepository.findById(produceIdx).orElseThrow(() -> new BaseException(INVALID_PRODUCE_IDX));
+            if (produce.getStatus().equals(INACTIVE)) throw new BaseException(ALREADY_DELETED_PRODUCE);
+
+            User user = userRepository.findByUserIdx(getUserIdxWithValidation()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            validateWriter(user, produce);
+
+            if (produceEditRequest.title() != null) {
+                if (!produceEditRequest.title().equals("") && !produceEditRequest.title().equals(" "))
+                    produce.modifyTitle(produceEditRequest.title());
+                else throw new BaseException(BLANK_PRODUCE_TITLE);
+            }
+            if (produceEditRequest.content() != null) {
+                if (!produceEditRequest.content().equals("") && !produceEditRequest.content().equals(" "))
+                    produce.modifyContent(produceEditRequest.content());
+                else throw new BaseException(BLANK_PRODUCE_CONTENT);
+            }
+            if (produceEditRequest.price() != null) {
+                if (produceEditRequest.price() > 0)
+                    produce.modifyPrice(produceEditRequest.price());
+                else throw new BaseException(BLANK_PRODUCE_PRICE);
+            }
+            if (produceEditRequest.produceImage() != null) {
+                // delete previous image
+                boolean isDeleted = gcsService.deleteImage(produce.getProduceImage());
+                if (!isDeleted) throw new BaseException(IMAGE_DELETE_FAIL);
+
+                // upload new image
+                String fullPath = gcsService.uploadImage("produce", image);
+                String newImageUrl = "https://storage.googleapis.com/"+bucketName+"/"+fullPath;
+                produce.modifyImage(newImageUrl);
+            } else throw new BaseException(NULL_PRODUCE_IMAGE);
+            produceRepository.save(produce);
         } catch (BaseException e) {
             throw e;
         } catch (Exception e) {
