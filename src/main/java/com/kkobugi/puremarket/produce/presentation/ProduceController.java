@@ -3,6 +3,7 @@ package com.kkobugi.puremarket.produce.presentation;
 import com.kkobugi.puremarket.common.BaseException;
 import com.kkobugi.puremarket.common.BaseResponse;
 import com.kkobugi.puremarket.produce.application.ProduceService;
+import com.kkobugi.puremarket.produce.domain.dto.ProduceEditViewResponse;
 import com.kkobugi.puremarket.produce.domain.dto.ProduceListResponse;
 import com.kkobugi.puremarket.produce.domain.dto.ProducePostRequest;
 import com.kkobugi.puremarket.produce.domain.dto.ProduceResponse;
@@ -105,6 +106,17 @@ public class ProduceController {
         try {
             produceService.deleteProduce(produceIdx);
             return new BaseResponse<>(SUCCESS);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    // [작성자] 판매글 수정화면 조회
+    @GetMapping("/editView/{produceIdx}")
+    @Operation(summary = "판매글 수정화면 조회", description = "해당 판매글의 원데이터를 조회한다.")
+    public BaseResponse<ProduceEditViewResponse> getProduceEditView(@Parameter(description = "판매글 Idx", in = ParameterIn.PATH) @PathVariable Long produceIdx) {
+        try {
+            return new BaseResponse<>(produceService.getProduceEditView(produceIdx));
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }

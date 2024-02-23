@@ -2,6 +2,7 @@ package com.kkobugi.puremarket.produce.application;
 
 import com.kkobugi.puremarket.common.BaseException;
 import com.kkobugi.puremarket.common.gcs.GCSService;
+import com.kkobugi.puremarket.produce.domain.dto.ProduceEditViewResponse;
 import com.kkobugi.puremarket.produce.domain.dto.ProduceListResponse;
 import com.kkobugi.puremarket.produce.domain.dto.ProducePostRequest;
 import com.kkobugi.puremarket.produce.domain.dto.ProduceResponse;
@@ -125,7 +126,7 @@ public class ProduceService {
         }
     }
 
-    // 판매글 삭제
+    // [작성자] 판매글 삭제
     @Transactional(rollbackFor = Exception.class)
     public void deleteProduce(Long produceIdx) throws BaseException {
         try {
@@ -140,6 +141,22 @@ public class ProduceService {
             if (!isDeleted) throw new BaseException(IMAGE_DELETE_FAIL);
 
             produceRepository.save(produce);
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    // [작성자] 판매글 수정 화면 조회
+    public ProduceEditViewResponse getProduceEditView(Long produceIdx) throws BaseException {
+        try {
+            Long userIdx = getUserIdxWithValidation();
+            Produce produce = produceRepository.findById(produceIdx).orElseThrow(() -> new BaseException(INVALID_PRODUCE_IDX));
+            if (produce.getStatus().equals(INACTIVE)) throw new BaseException(ALREADY_DELETED_PRODUCE);
+
+            return new ProduceEditViewResponse(produce.getTitle(), produce.getContent(), produce.getPrice(), produce.getProduceImage(),
+                    produce.getUser().getNickname(), produce.getUser().getContact(), produce.getUser().getProfileImage());
         } catch (BaseException e) {
             throw e;
         } catch (Exception e) {
