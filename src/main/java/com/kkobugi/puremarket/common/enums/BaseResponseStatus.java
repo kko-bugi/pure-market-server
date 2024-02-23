@@ -33,6 +33,10 @@ public enum BaseResponseStatus {
     TITLE_EXCEEDED_MAX_LIMIT(false, 2101, "제목은 32자 이하여야 합니다."),
     NO_PRODUCE_WRITER(false, 2102, "해당 판매글의 작성자가 아닙니다."),
     ALREADY_DELETED_PRODUCE(false, 2103, "이미 삭제된 판매글입니다."),
+    BLANK_PRODUCE_TITLE(false, 2104, "제목이 비었습니다."),
+    BLANK_PRODUCE_CONTENT(false, 2105, "내용이 비었습니다."),
+    BLANK_PRODUCE_PRICE(false, 2106, "가격이 비었습니다."),
+    NULL_PRODUCE_IMAGE(false, 2107, "이미지가 비었습니다."),
 
     // recipe(2200-2299)
     INVALID_RECIPE_IDX(false, 2200, "잘못된 레시피글 idx 입니다."),
