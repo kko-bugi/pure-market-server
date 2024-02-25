@@ -2,12 +2,9 @@ package com.kkobugi.puremarket.giveaway.application;
 
 import com.kkobugi.puremarket.common.BaseException;
 import com.kkobugi.puremarket.common.gcs.GCSService;
-import com.kkobugi.puremarket.giveaway.domain.dto.GiveawayEditViewResponse;
-import com.kkobugi.puremarket.giveaway.domain.dto.GiveawayListResponse;
-import com.kkobugi.puremarket.giveaway.domain.dto.GiveawayResponse;
+import com.kkobugi.puremarket.giveaway.domain.dto.*;
 import com.kkobugi.puremarket.giveaway.domain.entity.Giveaway;
 import com.kkobugi.puremarket.giveaway.repository.GiveawayRepository;
-import com.kkobugi.puremarket.giveaway.domain.dto.GiveawayPostRequest;
 import com.kkobugi.puremarket.user.application.AuthService;
 import com.kkobugi.puremarket.user.domain.entity.User;
 import com.kkobugi.puremarket.user.repository.UserRepository;
@@ -166,6 +163,44 @@ public class GiveawayService {
 
             return new GiveawayEditViewResponse(giveaway.getTitle(), giveaway.getContent(), giveaway.getGiveawayImage(),
                     giveaway.getUser().getNickname(), giveaway.getUser().getContact(), giveaway.getUser().getProfileImage());
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    // [작성자] 나눔글 수정
+    @Transactional(rollbackFor = Exception.class)
+    public void editGiveaway(Long giveawayIdx, MultipartFile image, GiveawayEditRequest giveawayEditRequest) throws BaseException {
+        try {
+            Giveaway giveaway = giveawayRepository.findById(giveawayIdx).orElseThrow(() -> new BaseException(INVALID_GIVEAWAY_IDX));
+            if (giveaway.getStatus().equals(INACTIVE)) throw new BaseException(ALREADY_DELETED_GIVEAWAY);
+
+            User user = userRepository.findByUserIdx(getUserIdxWithValidation()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            validateWriter(user, giveaway);
+
+            if (giveawayEditRequest.title() != null) {
+                if (!giveawayEditRequest.title().equals("") && !giveawayEditRequest.title().equals(" "))
+                    giveaway.modifyTitle(giveawayEditRequest.title());
+                else throw new BaseException(BLANK_GIVEAWAY_TITLE);
+            }
+            if (giveawayEditRequest.content() != null) {
+                if (!giveawayEditRequest.content().equals("") && !giveawayEditRequest.content().equals(" "))
+                    giveaway.modifyContent(giveawayEditRequest.content());
+                else throw new BaseException(BLANK_GIVEAWAY_CONTENT);
+            }
+            if (image != null) {
+                // delete previous image
+                boolean isDeleted = gcsService.deleteImage(giveaway.getGiveawayImage());
+                if (!isDeleted) throw new BaseException(IMAGE_DELETE_FAIL);
+
+                // upload new image
+                String fullPath = gcsService.uploadImage("giveaway", image);
+                String newImageUrl = "https://storage.googleapis.com/"+bucketName+"/"+fullPath;
+                giveaway.modifyImage(newImageUrl);
+            } else throw new BaseException(NULL_GIVEAWAY_IMAGE);
+            giveawayRepository.save(giveaway);
         } catch (BaseException e) {
             throw e;
         } catch (Exception e) {

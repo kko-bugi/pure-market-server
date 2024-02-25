@@ -49,8 +49,11 @@ public enum BaseResponseStatus {
     INVALID_GIVEAWAY_IDX(false, 2400, "잘못된 나눔글 idx 입니다."),
     NO_GIVEAWAY_WRITER(false, 2401, "해당 나눔글의 작성자가 아닙니다."),
     ALREADY_DELETED_GIVEAWAY(false, 2402, "이미 삭제된 나눔글입니다."),
+    NULL_GIVEAWAY_IMAGE(false, 2403, "이미지가 비었습니다."),
+    BLANK_GIVEAWAY_TITLE(false, 2404, "제목이 비었습니다."),
+    BLANK_GIVEAWAY_CONTENT(false, 2405, "내용이 비었습니다."),
 
-    UNKNOWN_ERROR(false, 2500, "알 수 없는 에러"),
+
     ACCESS_DENIED(false, 403, "접근 권한이 없습니다."),
 
     /**

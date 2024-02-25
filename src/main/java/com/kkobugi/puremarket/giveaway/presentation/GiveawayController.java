@@ -3,10 +3,7 @@ package com.kkobugi.puremarket.giveaway.presentation;
 import com.kkobugi.puremarket.common.BaseException;
 import com.kkobugi.puremarket.common.BaseResponse;
 import com.kkobugi.puremarket.giveaway.application.GiveawayService;
-import com.kkobugi.puremarket.giveaway.domain.dto.GiveawayEditViewResponse;
-import com.kkobugi.puremarket.giveaway.domain.dto.GiveawayListResponse;
-import com.kkobugi.puremarket.giveaway.domain.dto.GiveawayPostRequest;
-import com.kkobugi.puremarket.giveaway.domain.dto.GiveawayResponse;
+import com.kkobugi.puremarket.giveaway.domain.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -117,6 +114,20 @@ public class GiveawayController {
     public BaseResponse<GiveawayEditViewResponse> getGiveawayEditView(@Parameter(description = "나눔글 Idx", in = ParameterIn.PATH) @PathVariable Long giveawayIdx) {
         try {
             return new BaseResponse<>(giveawayService.getGiveawayEditView(giveawayIdx));
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    // [작성자] 나눔글 수정
+    @PatchMapping("/edit/{giveawayIdx}")
+    @Operation(summary = "나눔글 수정", description = "나눔글을 수정한다.")
+    public BaseResponse<?> editProduce(@Parameter(description = "나눔글 Idx", in = ParameterIn.PATH) @PathVariable Long giveawayIdx,
+                                       @RequestPart(value = "image", required = false) MultipartFile image,
+                                       @RequestPart(value = "giveawayRequest") GiveawayEditRequest giveawayEditRequest) {
+        try {
+            giveawayService.editGiveaway(giveawayIdx, image, giveawayEditRequest);
+            return new BaseResponse<>(SUCCESS);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
