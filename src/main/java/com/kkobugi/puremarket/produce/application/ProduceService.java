@@ -1,5 +1,7 @@
 package com.kkobugi.puremarket.produce.application;
 
+import com.kkobugi.puremarket.comment.domain.dto.CommentDto;
+import com.kkobugi.puremarket.comment.repository.CommentRepository;
 import com.kkobugi.puremarket.common.BaseException;
 import com.kkobugi.puremarket.common.gcs.GCSService;
 import com.kkobugi.puremarket.produce.domain.dto.*;
@@ -16,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.kkobugi.puremarket.common.constants.Constant.INACTIVE;
 import static com.kkobugi.puremarket.common.constants.Constant.Produce.FOR_SALE;
@@ -29,6 +32,7 @@ public class ProduceService {
     private final AuthService authService;
     private final GCSService gcsService;
     private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
 
     @Value("${spring.cloud.gcp.storage.bucket}")
     private String bucketName;
@@ -75,8 +79,13 @@ public class ProduceService {
             if (userIdx != null && produce.getUser() != null) {
                 isWriter = userIdx.equals(produce.getUser().getUserIdx());
             }
-            return new ProduceResponse(produce.getProduceIdx(), produce.getTitle(), produce.getContent(), produce.getPrice(), produce.getProduceImage(), produce.getStatus(),
-                                        produce.getUser().getNickname(), produce.getUser().getContact(), produce.getUser().getProfileImage(), isWriter);
+            List<CommentDto> commentList = commentRepository.findByProduceOrderByCreatedDateAsc(produce).stream()
+                    .map(comment -> new CommentDto(comment.getUser().getNickname(), comment.getUser().getProfileImage(),
+                            comment.getContent(), comment.getCreatedDate())).collect(Collectors.toList());
+
+            return new ProduceResponse(produce.getProduceIdx(), produce.getTitle(), produce.getContent(), produce.getPrice(), produce.getProduceImage(),
+                    produce.getStatus(), produce.getUser().getNickname(), produce.getUser().getContact(), produce.getUser().getProfileImage(),
+                    isWriter, commentList);
         } catch (BaseException e) {
             throw e;
         } catch (Exception e) {
