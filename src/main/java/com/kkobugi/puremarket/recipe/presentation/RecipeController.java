@@ -3,6 +3,7 @@ package com.kkobugi.puremarket.recipe.presentation;
 import com.kkobugi.puremarket.common.BaseException;
 import com.kkobugi.puremarket.common.BaseResponse;
 import com.kkobugi.puremarket.recipe.application.RecipeService;
+import com.kkobugi.puremarket.recipe.domain.dto.RecipeEditViewResponse;
 import com.kkobugi.puremarket.recipe.domain.dto.RecipeListResponse;
 import com.kkobugi.puremarket.recipe.domain.dto.RecipePostRequest;
 import com.kkobugi.puremarket.recipe.domain.dto.RecipeResponse;
@@ -87,6 +88,17 @@ public class RecipeController {
         try {
             recipeService.deleteRecipe(recipeIdx);
             return new BaseResponse<>(SUCCESS);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    // [작성자] 레시피글 수정 화면 조회
+    @GetMapping("/editView/{recipeIdx}")
+    @Operation(summary = "레시피글 수정화면 조회", description = "해당 레시피글의 원데이터를 조회한다.")
+    public BaseResponse<RecipeEditViewResponse> getRecipeEditView(@Parameter(description = "레시피글 Idx", in = ParameterIn.PATH) @PathVariable Long recipeIdx) {
+        try {
+            return new BaseResponse<>(recipeService.getRecipeEditView(recipeIdx));
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
