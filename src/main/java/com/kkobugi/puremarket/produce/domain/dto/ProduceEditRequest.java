@@ -8,7 +8,5 @@ public record ProduceEditRequest(@Schema(description = "글 제목", example = "
                                  @Schema(description = "글 내용", example = "판매함니다~")
                                  String content,
                                  @Schema(description = "가격", example = "10000")
-                                 Integer price,
-                                 @Schema(description = "글 이미지 url", example = "https://dwffwdfdwbwv")
-                                 String produceImage) {
+                                 Integer price) {
 }

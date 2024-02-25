@@ -188,7 +188,7 @@ public class ProduceService {
                     produce.modifyPrice(produceEditRequest.price());
                 else throw new BaseException(BLANK_PRODUCE_PRICE);
             }
-            if (produceEditRequest.produceImage() != null) {
+            if (image != null) {
                 // delete previous image
                 boolean isDeleted = gcsService.deleteImage(produce.getProduceImage());
                 if (!isDeleted) throw new BaseException(IMAGE_DELETE_FAIL);
