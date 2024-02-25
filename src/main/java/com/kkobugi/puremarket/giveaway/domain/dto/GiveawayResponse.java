@@ -1,6 +1,9 @@
 package com.kkobugi.puremarket.giveaway.domain.dto;
 
+import com.kkobugi.puremarket.comment.domain.dto.CommentDto;
 import io.swagger.v3.oas.annotations.media.Schema;
+
+import java.util.List;
 
 @Schema(description = "나눔글 상세 조회 응답")
 public record GiveawayResponse(
@@ -21,5 +24,6 @@ public record GiveawayResponse(
         @Schema(description = "프로필 이미지 url", example = "https://dwffwdfdwbwv")
         String profileImage,
         @Schema(description = "글 작성자 여부", example = "true")
-        boolean isWriter) {
-}
+        boolean isWriter,
+        @Schema(description = "댓글 리스트")
+        List<CommentDto> commentList) {}
