@@ -1,5 +1,7 @@
 package com.kkobugi.puremarket.giveaway.application;
 
+import com.kkobugi.puremarket.comment.domain.dto.CommentDto;
+import com.kkobugi.puremarket.comment.repository.CommentRepository;
 import com.kkobugi.puremarket.common.BaseException;
 import com.kkobugi.puremarket.common.gcs.GCSService;
 import com.kkobugi.puremarket.giveaway.domain.dto.*;
@@ -16,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.kkobugi.puremarket.common.constants.Constant.Giveaway.DONE;
 import static com.kkobugi.puremarket.common.constants.Constant.Giveaway.GIVEAWAY;
@@ -29,6 +32,7 @@ public class GiveawayService {
     private final AuthService authService;
     private final UserRepository userRepository;
     private final GCSService gcsService;
+    private final CommentRepository commentRepository;
 
     @Value("${spring.cloud.gcp.storage.bucket}")
     private String bucketName;
@@ -75,8 +79,13 @@ public class GiveawayService {
             if (userIdx != null && giveaway.getUser() != null) {
                 isWriter = userIdx.equals(giveaway.getUser().getUserIdx());
             }
-            return new GiveawayResponse(giveaway.getGiveawayIdx(), giveaway.getTitle(), giveaway.getContent(), giveaway.getGiveawayImage(), giveaway.getStatus(),
-                                            giveaway.getUser().getNickname(), giveaway.getUser().getContact(), giveaway.getUser().getProfileImage(), isWriter);
+            List<CommentDto> commentList = commentRepository.findByGiveawayOrderByCreatedDateAsc(giveaway).stream()
+                    .map(comment -> new CommentDto(comment.getUser().getNickname(), comment.getUser().getProfileImage(),
+                            comment.getContent(), comment.getCreatedDate())).collect(Collectors.toList());
+
+            return new GiveawayResponse(giveaway.getGiveawayIdx(), giveaway.getTitle(), giveaway.getContent(), giveaway.getGiveawayImage(),
+                    giveaway.getStatus(), giveaway.getUser().getNickname(), giveaway.getUser().getContact(), giveaway.getUser().getProfileImage(),
+                    isWriter, commentList);
         } catch (BaseException e) {
             throw e;
         } catch (Exception e) {
