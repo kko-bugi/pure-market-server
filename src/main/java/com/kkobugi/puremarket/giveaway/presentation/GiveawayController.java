@@ -3,6 +3,7 @@ package com.kkobugi.puremarket.giveaway.presentation;
 import com.kkobugi.puremarket.common.BaseException;
 import com.kkobugi.puremarket.common.BaseResponse;
 import com.kkobugi.puremarket.giveaway.application.GiveawayService;
+import com.kkobugi.puremarket.giveaway.domain.dto.GiveawayEditViewResponse;
 import com.kkobugi.puremarket.giveaway.domain.dto.GiveawayListResponse;
 import com.kkobugi.puremarket.giveaway.domain.dto.GiveawayPostRequest;
 import com.kkobugi.puremarket.giveaway.domain.dto.GiveawayResponse;
@@ -105,6 +106,17 @@ public class GiveawayController {
         try {
             giveawayService.deleteGiveaway(giveawayIdx);
             return new BaseResponse<>(SUCCESS);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    // [작성자] 나눔글 수정화면 조회
+    @GetMapping("/editView/{giveawayIdx}")
+    @Operation(summary = "나눔글 수정화면 조회", description = "해당 나눔글의 원데이터를 조회한다.")
+    public BaseResponse<GiveawayEditViewResponse> getGiveawayEditView(@Parameter(description = "나눔글 Idx", in = ParameterIn.PATH) @PathVariable Long giveawayIdx) {
+        try {
+            return new BaseResponse<>(giveawayService.getGiveawayEditView(giveawayIdx));
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
