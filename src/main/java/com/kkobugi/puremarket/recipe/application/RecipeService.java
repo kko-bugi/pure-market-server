@@ -131,21 +131,28 @@ public class RecipeService {
             if (!isDeleted) throw new BaseException(IMAGE_DELETE_FAIL);
             recipeRepository.save(recipe);
 
-            List<RecipeDescription> recipeDescriptionList = recipeDescriptionRepository.findByRecipeAndStatusEquals(recipe, ACTIVE);
-            for (RecipeDescription description : recipeDescriptionList) {
-                description.delete();
-                recipeDescriptionRepository.save(description);
-            }
-
-            List<Ingredient> ingredientList = ingredientRepository.findByRecipeAndStatusEquals(recipe, ACTIVE);
-            for (Ingredient ingredient : ingredientList) {
-                ingredient.delete();
-                ingredientRepository.save(ingredient);
-            }
+            deleteRecipeDescriptions(recipe);
+            deleteIngredients(recipe);
         } catch (BaseException e) {
             throw e;
         } catch (Exception e) {
             throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    private void deleteRecipeDescriptions(Recipe recipe) {
+        List<RecipeDescription> recipeDescriptionList = recipeDescriptionRepository.findByRecipeAndStatusEquals(recipe, ACTIVE);
+        for (RecipeDescription description : recipeDescriptionList) {
+            description.delete();
+            recipeDescriptionRepository.save(description);
+        }
+    }
+
+    private void deleteIngredients(Recipe recipe) {
+        List<Ingredient> ingredientList = ingredientRepository.findByRecipeAndStatusEquals(recipe, ACTIVE);
+        for (Ingredient ingredient : ingredientList) {
+            ingredient.delete();
+            ingredientRepository.save(ingredient);
         }
     }
 
@@ -165,6 +172,61 @@ public class RecipeService {
             return new RecipeEditViewResponse(recipe.getTitle(), recipe.getContent(), recipe.getRecipeImage(),
                     ingredientList, sauceList, recipeDescriptionList,
                     recipe.getUser().getNickname(), recipe.getUser().getContact(), recipe.getUser().getProfileImage());
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    // [작성자] 레시피글 수정
+    @Transactional(rollbackFor = Exception.class)
+    public void editRecipe(Long recipeIdx, MultipartFile image, RecipeEditRequest recipeEditRequest) throws BaseException {
+        try {
+            Recipe recipe = recipeRepository.findById(recipeIdx).orElseThrow(() -> new BaseException(INVALID_RECIPE_IDX));
+            if (recipe.getStatus().equals(INACTIVE)) throw new BaseException(ALREADY_DELETED_RECIPE);
+
+            User user = userRepository.findByUserIdx(getUserIdxWithValidation()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            validateWriter(user, recipe);
+
+            if (recipeEditRequest.title() != null) {
+                if (!recipeEditRequest.title().equals("") && !recipeEditRequest.title().equals(" "))
+                    recipe.modifyTitle(recipeEditRequest.title());
+                else throw new BaseException(BLANK_RECIPE_TITLE);
+            }
+            if (recipeEditRequest.content() != null) {
+                if (!recipeEditRequest.content().equals("") && !recipeEditRequest.content().equals(" "))
+                    recipe.modifyContent(recipeEditRequest.content());
+                else throw new BaseException(BLANK_RECIPE_CONTENT);
+            }
+            if (recipeEditRequest.ingredientList() != null && recipeEditRequest.sauceList() != null) {
+                deleteIngredients(recipe);
+
+                List<Ingredient> ingredientList = recipeEditRequest.ingredientList().stream()
+                        .map(ingredientDto -> new Ingredient(recipe, ingredientDto.name(), ingredientDto.quantity(), INGREDIENT)).toList();
+                List<Ingredient> sauceList = recipeEditRequest.sauceList().stream()
+                        .map(sauceDto -> new Ingredient(recipe, sauceDto.name(), sauceDto.quantity(), SAUCE)).toList();
+                ingredientRepository.saveAll(ingredientList);
+                ingredientRepository.saveAll(sauceList);
+            }
+            if (recipeEditRequest.recipeDescriptionList() != null) {
+                deleteRecipeDescriptions(recipe);
+
+                List<RecipeDescription> descriptionList = recipeEditRequest.recipeDescriptionList().stream()
+                        .map(descriptionDto -> new RecipeDescription(recipe, descriptionDto.orderNumber(), descriptionDto.description())).toList();
+                recipeDescriptionRepository.saveAll(descriptionList);
+            }
+            if (image != null) {
+                // delete previous image
+                boolean isDeleted = gcsService.deleteImage(recipe.getRecipeImage());
+                if (!isDeleted) throw new BaseException(IMAGE_DELETE_FAIL);
+
+                // upload new image
+                String fullPath = gcsService.uploadImage("recipe", image);
+                String newImageUrl = "https://storage.googleapis.com/"+bucketName+"/"+fullPath;
+                recipe.modifyImage(newImageUrl);
+            } else throw new BaseException(NULL_RECIPE_IMAGE);
+            recipeRepository.save(recipe);
         } catch (BaseException e) {
             throw e;
         } catch (Exception e) {

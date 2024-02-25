@@ -122,7 +122,7 @@ public class GiveawayController {
     // [작성자] 나눔글 수정
     @PatchMapping("/edit/{giveawayIdx}")
     @Operation(summary = "나눔글 수정", description = "나눔글을 수정한다.")
-    public BaseResponse<?> editProduce(@Parameter(description = "나눔글 Idx", in = ParameterIn.PATH) @PathVariable Long giveawayIdx,
+    public BaseResponse<?> editGiveaway(@Parameter(description = "나눔글 Idx", in = ParameterIn.PATH) @PathVariable Long giveawayIdx,
                                        @RequestPart(value = "image", required = false) MultipartFile image,
                                        @RequestPart(value = "giveawayRequest") GiveawayEditRequest giveawayEditRequest) {
         try {
