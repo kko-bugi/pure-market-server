@@ -3,10 +3,7 @@ package com.kkobugi.puremarket.recipe.presentation;
 import com.kkobugi.puremarket.common.BaseException;
 import com.kkobugi.puremarket.common.BaseResponse;
 import com.kkobugi.puremarket.recipe.application.RecipeService;
-import com.kkobugi.puremarket.recipe.domain.dto.RecipeEditViewResponse;
-import com.kkobugi.puremarket.recipe.domain.dto.RecipeListResponse;
-import com.kkobugi.puremarket.recipe.domain.dto.RecipePostRequest;
-import com.kkobugi.puremarket.recipe.domain.dto.RecipeResponse;
+import com.kkobugi.puremarket.recipe.domain.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -99,6 +96,20 @@ public class RecipeController {
     public BaseResponse<RecipeEditViewResponse> getRecipeEditView(@Parameter(description = "레시피글 Idx", in = ParameterIn.PATH) @PathVariable Long recipeIdx) {
         try {
             return new BaseResponse<>(recipeService.getRecipeEditView(recipeIdx));
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    // [작성자] 레시피글 수정
+    @PatchMapping("/edit/{recipeIdx}")
+    @Operation(summary = "레시피글 수정", description = "레시피글을 수정한다.")
+    public BaseResponse<?> editRecipe(@Parameter(description = "레시피글 Idx", in = ParameterIn.PATH) @PathVariable Long recipeIdx,
+                                       @RequestPart(value = "image", required = false) MultipartFile image,
+                                       @RequestPart(value = "recipeRequest") RecipeEditRequest recipeEditRequest) {
+        try {
+            recipeService.editRecipe(recipeIdx, image, recipeEditRequest);
+            return new BaseResponse<>(SUCCESS);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }

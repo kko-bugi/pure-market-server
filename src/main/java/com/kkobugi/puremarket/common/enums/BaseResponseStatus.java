@@ -42,6 +42,9 @@ public enum BaseResponseStatus {
     INVALID_RECIPE_IDX(false, 2200, "잘못된 레시피글 idx 입니다."),
     NO_RECIPE_WRITER(false, 2201, "해당 레시피글의 작성자가 아닙니다."),
     ALREADY_DELETED_RECIPE(false, 2202, "이미 삭제된 레시피글입니다."),
+    BLANK_RECIPE_TITLE(false, 2203, "제목이 비었습니다."),
+    BLANK_RECIPE_CONTENT(false, 2204, "내용이 비었습니다."),
+    NULL_RECIPE_IMAGE(false, 2205, "이미지가 비었습니다."),
 
     // ingredient(2300-2399)
 
