@@ -4,9 +4,7 @@ import com.kkobugi.puremarket.common.BaseException;
 import com.kkobugi.puremarket.common.gcs.GCSService;
 import com.kkobugi.puremarket.ingredient.domain.entity.Ingredient;
 import com.kkobugi.puremarket.ingredient.repository.IngredientRepository;
-import com.kkobugi.puremarket.recipe.domain.dto.RecipeListResponse;
-import com.kkobugi.puremarket.recipe.domain.dto.RecipePostRequest;
-import com.kkobugi.puremarket.recipe.domain.dto.RecipeResponse;
+import com.kkobugi.puremarket.recipe.domain.dto.*;
 import com.kkobugi.puremarket.recipe.domain.entity.Recipe;
 import com.kkobugi.puremarket.recipe.domain.entity.RecipeDescription;
 import com.kkobugi.puremarket.recipe.repository.RecipeDescriptionRepository;
@@ -69,23 +67,9 @@ public class RecipeService {
                 isWriter = userIdx.equals(recipe.getUser().getUserIdx());
             }
 
-            // 재료 리스트
-            List<RecipeResponse.IngredientDto> ingredientList = ingredientRepository.findByRecipeAndIngredientTypeAndStatusEqualsOrderByCreatedDateDesc(recipe, INGREDIENT, ACTIVE).stream()
-                    .map(ingredient -> new RecipeResponse.IngredientDto(
-                            ingredient.getName(),
-                            ingredient.getQuantity())).toList();
-
-            // 양념 리스트
-            List<RecipeResponse.SauceDto> sauceList = ingredientRepository.findByRecipeAndIngredientTypeAndStatusEqualsOrderByCreatedDateDesc(recipe, SAUCE, ACTIVE).stream()
-                    .map(sauce -> new RecipeResponse.SauceDto(
-                            sauce.getName(),
-                            sauce.getQuantity())).toList();
-
-            // 레시피 상세 리스트(조리 순서)
-            List<RecipeResponse.RecipeDescriptionDto> recipeDescriptionList = recipeDescriptionRepository.findByRecipeAndStatusEqualsOrderByCreatedDateDesc(recipe, ACTIVE).stream()
-                    .map(description -> new RecipeResponse.RecipeDescriptionDto(
-                            description.getOrderNumber(),
-                            description.getDescription())).toList();
+            List<IngredientDto> ingredientList = getIngredientList(recipe);
+            List<SauceDto> sauceList = getSauceList(recipe);
+            List<RecipeDescriptionDto> recipeDescriptionList = getRecipeDescriptionList(recipe);
 
             return new RecipeResponse(recipe.getRecipeIdx(), recipe.getTitle(), recipe.getContent(), recipe.getRecipeImage(),
                                         ingredientList, sauceList, recipeDescriptionList,
@@ -163,6 +147,50 @@ public class RecipeService {
         } catch (Exception e) {
             throw new BaseException(DATABASE_ERROR);
         }
+    }
+
+    // [작성자] 레시피글 수정 화면 조회
+    public RecipeEditViewResponse getRecipeEditView(Long recipeIdx) throws BaseException {
+        try {
+            Recipe recipe = recipeRepository.findById(recipeIdx).orElseThrow(() -> new BaseException(INVALID_RECIPE_IDX));
+            if (recipe.getStatus().equals(INACTIVE)) throw new BaseException(ALREADY_DELETED_GIVEAWAY);
+
+            User user = userRepository.findByUserIdx(getUserIdxWithValidation()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            validateWriter(user, recipe);
+
+            List<IngredientDto> ingredientList = getIngredientList(recipe);
+            List<SauceDto> sauceList = getSauceList(recipe);
+            List<RecipeDescriptionDto> recipeDescriptionList = getRecipeDescriptionList(recipe);
+
+            return new RecipeEditViewResponse(recipe.getTitle(), recipe.getContent(), recipe.getRecipeImage(),
+                    ingredientList, sauceList, recipeDescriptionList,
+                    recipe.getUser().getNickname(), recipe.getUser().getContact(), recipe.getUser().getProfileImage());
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    private List<RecipeDescriptionDto> getRecipeDescriptionList(Recipe recipe) {
+        return recipeDescriptionRepository.findByRecipeAndStatusEqualsOrderByCreatedDateDesc(recipe, ACTIVE).stream()
+                .map(description -> new RecipeDescriptionDto(
+                        description.getOrderNumber(),
+                        description.getDescription())).toList();
+    }
+
+    private List<SauceDto> getSauceList(Recipe recipe) {
+        return ingredientRepository.findByRecipeAndIngredientTypeAndStatusEqualsOrderByCreatedDateDesc(recipe, SAUCE, ACTIVE).stream()
+                .map(sauce -> new SauceDto(
+                        sauce.getName(),
+                        sauce.getQuantity())).toList();
+    }
+
+    private List<IngredientDto> getIngredientList(Recipe recipe) {
+        return ingredientRepository.findByRecipeAndIngredientTypeAndStatusEqualsOrderByCreatedDateDesc(recipe, INGREDIENT, ACTIVE).stream()
+                .map(ingredient -> new IngredientDto(
+                        ingredient.getName(),
+                        ingredient.getQuantity())).toList();
     }
 
     private static void validateWriter(User user, Recipe recipe) throws BaseException {

@@ -11,9 +11,9 @@ public record RecipePostRequest(
         @Schema(description = "글 내용", example = "레시피글 내용")
         String content,
         @Schema(description = "재료 리스트")
-        List<RecipeResponse.IngredientDto> ingredientList,
+        List<IngredientDto> ingredientList,
         @Schema(description = "양념 리스트")
-        List<RecipeResponse.SauceDto> sauceList,
+        List<SauceDto> sauceList,
         @Schema(description = "조리 순서 리스트")
-        List<RecipeResponse.RecipeDescriptionDto> recipeDescriptionList) {
+        List<RecipeDescriptionDto> recipeDescriptionList) {
 }
