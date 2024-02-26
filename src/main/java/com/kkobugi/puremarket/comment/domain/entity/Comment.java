@@ -7,6 +7,7 @@ import com.kkobugi.puremarket.recipe.domain.entity.Recipe;
 import com.kkobugi.puremarket.user.domain.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
@@ -39,4 +40,13 @@ public class Comment extends BaseEntity {
 
     @Column(nullable = false)
     private String content;
+
+    @Builder
+    public Comment(User user, Produce produce, Giveaway giveaway, Recipe recipe, String content) {
+        this.user = user;
+        this.produce = produce;
+        this.giveaway = giveaway;
+        this.recipe = recipe;
+        this.content = content;
+    }
 }
