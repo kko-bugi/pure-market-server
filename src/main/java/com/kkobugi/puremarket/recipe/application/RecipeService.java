@@ -1,5 +1,7 @@
 package com.kkobugi.puremarket.recipe.application;
 
+import com.kkobugi.puremarket.comment.domain.dto.CommentDto;
+import com.kkobugi.puremarket.comment.repository.CommentRepository;
 import com.kkobugi.puremarket.common.BaseException;
 import com.kkobugi.puremarket.common.gcs.GCSService;
 import com.kkobugi.puremarket.ingredient.domain.entity.Ingredient;
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.kkobugi.puremarket.common.constants.Constant.ACTIVE;
 import static com.kkobugi.puremarket.common.constants.Constant.INACTIVE;
@@ -35,6 +38,7 @@ public class RecipeService {
     private final RecipeDescriptionRepository recipeDescriptionRepository;
     private final UserRepository userRepository;
     private final GCSService gcsService;
+    private final CommentRepository commentRepository;
 
     @Value("${spring.cloud.gcp.storage.bucket}")
     private String bucketName;
@@ -71,9 +75,13 @@ public class RecipeService {
             List<SauceDto> sauceList = getSauceList(recipe);
             List<RecipeDescriptionDto> recipeDescriptionList = getRecipeDescriptionList(recipe);
 
+            List<CommentDto> commentList = commentRepository.findByRecipeOrderByCreatedDateAsc(recipe).stream()
+                    .map(comment -> new CommentDto(comment.getUser().getNickname(), comment.getUser().getProfileImage(),
+                            comment.getContent(), comment.getCreatedDate())).collect(Collectors.toList());
+
             return new RecipeResponse(recipe.getRecipeIdx(), recipe.getTitle(), recipe.getContent(), recipe.getRecipeImage(),
-                                        ingredientList, sauceList, recipeDescriptionList,
-                                            recipe.getUser().getNickname(), recipe.getUser().getContact(), recipe.getUser().getProfileImage(), isWriter);
+                    ingredientList, sauceList, recipeDescriptionList, recipe.getUser().getNickname(), recipe.getUser().getContact(),
+                    recipe.getUser().getProfileImage(), isWriter, commentList);
         } catch (BaseException e) {
             throw e;
         } catch (Exception e) {
