@@ -80,7 +80,7 @@ public class GiveawayService {
                 isWriter = userIdx.equals(giveaway.getUser().getUserIdx());
             }
             List<CommentDto> commentList = commentRepository.findByGiveawayOrderByCreatedDateAsc(giveaway).stream()
-                    .map(comment -> new CommentDto(comment.getUser().getNickname(), comment.getUser().getProfileImage(),
+                    .map(comment -> new CommentDto(comment.getCommentIdx(), comment.getUser().getNickname(), comment.getUser().getProfileImage(),
                             comment.getContent(), comment.getCreatedDate())).collect(Collectors.toList());
 
             return new GiveawayResponse(giveaway.getGiveawayIdx(), giveaway.getTitle(), giveaway.getContent(), giveaway.getGiveawayImage(),

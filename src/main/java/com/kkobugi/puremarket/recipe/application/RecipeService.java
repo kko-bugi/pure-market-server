@@ -76,7 +76,7 @@ public class RecipeService {
             List<RecipeDescriptionDto> recipeDescriptionList = getRecipeDescriptionList(recipe);
 
             List<CommentDto> commentList = commentRepository.findByRecipeOrderByCreatedDateAsc(recipe).stream()
-                    .map(comment -> new CommentDto(comment.getUser().getNickname(), comment.getUser().getProfileImage(),
+                    .map(comment -> new CommentDto(comment.getCommentIdx(), comment.getUser().getNickname(), comment.getUser().getProfileImage(),
                             comment.getContent(), comment.getCreatedDate())).collect(Collectors.toList());
 
             return new RecipeResponse(recipe.getRecipeIdx(), recipe.getTitle(), recipe.getContent(), recipe.getRecipeImage(),
