@@ -56,6 +56,11 @@ public enum BaseResponseStatus {
     BLANK_GIVEAWAY_TITLE(false, 2404, "제목이 비었습니다."),
     BLANK_GIVEAWAY_CONTENT(false, 2405, "내용이 비었습니다."),
 
+    // comment(2500-2599)
+    INVALID_COMMENT_IDX(false, 2500, "잘못된 댓글 idx 입니다."),
+    NO_COMMENT_WRITER(false, 2501, "댓글 작성자가 아닙니다."),
+    ALREADY_DELETED_COMMENT(false, 2502, "이미 삭제된 댓글입니다."),
+    BLANK_COMMENT_CONTENT(false, 2503, "댓글 내용이 비었습니다."),
 
     ACCESS_DENIED(false, 403, "접근 권한이 없습니다."),
 

@@ -80,7 +80,7 @@ public class ProduceService {
                 isWriter = userIdx.equals(produce.getUser().getUserIdx());
             }
             List<CommentDto> commentList = commentRepository.findByProduceOrderByCreatedDateAsc(produce).stream()
-                    .map(comment -> new CommentDto(comment.getUser().getNickname(), comment.getUser().getProfileImage(),
+                    .map(comment -> new CommentDto(comment.getCommentIdx(), comment.getUser().getNickname(), comment.getUser().getProfileImage(),
                             comment.getContent(), comment.getCreatedDate())).collect(Collectors.toList());
 
             return new ProduceResponse(produce.getProduceIdx(), produce.getTitle(), produce.getContent(), produce.getPrice(), produce.getProduceImage(),
