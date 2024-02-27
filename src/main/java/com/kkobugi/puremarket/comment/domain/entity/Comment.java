@@ -12,6 +12,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 
+import static com.kkobugi.puremarket.common.constants.Constant.INACTIVE;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -51,4 +53,5 @@ public class Comment extends BaseEntity {
     }
 
     public void modifyContent(String content) { this.content = content; }
+    public void delete() { this.setStatus(INACTIVE);}
 }
