@@ -47,4 +47,15 @@ public class CommentController {
             return new BaseResponse<>(e.getStatus());
         }
     }
+
+    @PatchMapping("/delete/{commentIdx}")
+    @Operation(summary = "댓글 삭제", description = "댓글을 삭제한다.")
+    public BaseResponse<?> deleteComment(@Parameter(description = "댓글 Idx", in = ParameterIn.PATH) @PathVariable Long commentIdx) {
+        try {
+            commentService.deleteComment(commentIdx);
+            return new BaseResponse<>(SUCCESS);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
 }

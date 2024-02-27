@@ -97,6 +97,22 @@ public class CommentService {
         }
     }
 
+    // [작성자] 댓글 삭제
+    public void deleteComment(Long commentIdx) throws BaseException {
+        try {
+            Comment comment = commentRepository.findById(commentIdx).orElseThrow(() -> new BaseException(INVALID_COMMENT_IDX));
+            User writer = userRepository.findByUserIdx(getUserIdxWithValidation()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            validateWriter(writer, comment);
+
+            comment.delete();
+            commentRepository.save(comment);
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
     private Long getUserIdxWithValidation() throws BaseException {
         Long userIdx = authService.getUserIdx();
         if (userIdx == null) throw new BaseException(NULL_ACCESS_TOKEN);
