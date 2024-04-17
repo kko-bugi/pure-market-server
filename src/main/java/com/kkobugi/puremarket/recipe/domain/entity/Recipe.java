@@ -44,4 +44,7 @@ public class Recipe extends BaseEntity {
     public void delete() {
         this.setStatus(INACTIVE);
     }
+    public void modifyTitle(String title) { this.title = title; }
+    public void modifyContent(String content) { this.content = content; }
+    public void modifyImage(String imageUrl) { this.recipeImage = imageUrl; }
 }

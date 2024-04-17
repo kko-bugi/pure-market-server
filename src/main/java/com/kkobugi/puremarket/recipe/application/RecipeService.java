@@ -1,12 +1,12 @@
 package com.kkobugi.puremarket.recipe.application;
 
+import com.kkobugi.puremarket.comment.domain.dto.CommentDto;
+import com.kkobugi.puremarket.comment.repository.CommentRepository;
 import com.kkobugi.puremarket.common.BaseException;
 import com.kkobugi.puremarket.common.gcs.GCSService;
 import com.kkobugi.puremarket.ingredient.domain.entity.Ingredient;
 import com.kkobugi.puremarket.ingredient.repository.IngredientRepository;
-import com.kkobugi.puremarket.recipe.domain.dto.RecipeListResponse;
-import com.kkobugi.puremarket.recipe.domain.dto.RecipePostRequest;
-import com.kkobugi.puremarket.recipe.domain.dto.RecipeResponse;
+import com.kkobugi.puremarket.recipe.domain.dto.*;
 import com.kkobugi.puremarket.recipe.domain.entity.Recipe;
 import com.kkobugi.puremarket.recipe.domain.entity.RecipeDescription;
 import com.kkobugi.puremarket.recipe.repository.RecipeDescriptionRepository;
@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.kkobugi.puremarket.common.constants.Constant.ACTIVE;
 import static com.kkobugi.puremarket.common.constants.Constant.INACTIVE;
@@ -37,6 +38,7 @@ public class RecipeService {
     private final RecipeDescriptionRepository recipeDescriptionRepository;
     private final UserRepository userRepository;
     private final GCSService gcsService;
+    private final CommentRepository commentRepository;
 
     @Value("${spring.cloud.gcp.storage.bucket}")
     private String bucketName;
@@ -69,27 +71,17 @@ public class RecipeService {
                 isWriter = userIdx.equals(recipe.getUser().getUserIdx());
             }
 
-            // 재료 리스트
-            List<RecipeResponse.IngredientDto> ingredientList = ingredientRepository.findByRecipeAndIngredientTypeAndStatusEqualsOrderByCreatedDateDesc(recipe, INGREDIENT, ACTIVE).stream()
-                    .map(ingredient -> new RecipeResponse.IngredientDto(
-                            ingredient.getName(),
-                            ingredient.getQuantity())).toList();
+            List<IngredientDto> ingredientList = getIngredientList(recipe);
+            List<SauceDto> sauceList = getSauceList(recipe);
+            List<RecipeDescriptionDto> recipeDescriptionList = getRecipeDescriptionList(recipe);
 
-            // 양념 리스트
-            List<RecipeResponse.SauceDto> sauceList = ingredientRepository.findByRecipeAndIngredientTypeAndStatusEqualsOrderByCreatedDateDesc(recipe, SAUCE, ACTIVE).stream()
-                    .map(sauce -> new RecipeResponse.SauceDto(
-                            sauce.getName(),
-                            sauce.getQuantity())).toList();
-
-            // 레시피 상세 리스트(조리 순서)
-            List<RecipeResponse.RecipeDescriptionDto> recipeDescriptionList = recipeDescriptionRepository.findByRecipeAndStatusEqualsOrderByCreatedDateDesc(recipe, ACTIVE).stream()
-                    .map(description -> new RecipeResponse.RecipeDescriptionDto(
-                            description.getOrderNumber(),
-                            description.getDescription())).toList();
+            List<CommentDto> commentList = commentRepository.findByRecipeOrderByCreatedDateAsc(recipe).stream()
+                    .map(comment -> new CommentDto(comment.getCommentIdx(), comment.getUser().getNickname(), comment.getUser().getProfileImage(),
+                            comment.getContent(), comment.getCreatedDate())).collect(Collectors.toList());
 
             return new RecipeResponse(recipe.getRecipeIdx(), recipe.getTitle(), recipe.getContent(), recipe.getRecipeImage(),
-                                        ingredientList, sauceList, recipeDescriptionList,
-                                            recipe.getUser().getNickname(), recipe.getUser().getContact(), recipe.getUser().getProfileImage(), isWriter);
+                    ingredientList, sauceList, recipeDescriptionList, recipe.getUser().getNickname(), recipe.getUser().getContact(),
+                    recipe.getUser().getProfileImage(), isWriter, commentList);
         } catch (BaseException e) {
             throw e;
         } catch (Exception e) {
@@ -134,6 +126,7 @@ public class RecipeService {
     }
 
     // 레시피글 삭제
+    @Transactional(rollbackFor = Exception.class)
     public void deleteRecipe(Long recipeIdx) throws BaseException {
         try {
             Long userIdx = getUserIdxWithValidation();
@@ -141,14 +134,133 @@ public class RecipeService {
             Recipe recipe = recipeRepository.findById(recipeIdx).orElseThrow(() -> new BaseException(INVALID_RECIPE_IDX));
 
             validateWriter(user, recipe);
-
             recipe.delete();
+            boolean isDeleted = gcsService.deleteImage(recipe.getRecipeImage());
+            if (!isDeleted) throw new BaseException(IMAGE_DELETE_FAIL);
+            recipeRepository.save(recipe);
+
+            deleteRecipeDescriptions(recipe);
+            deleteIngredients(recipe);
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    private void deleteRecipeDescriptions(Recipe recipe) {
+        List<RecipeDescription> recipeDescriptionList = recipeDescriptionRepository.findByRecipeAndStatusEquals(recipe, ACTIVE);
+        for (RecipeDescription description : recipeDescriptionList) {
+            description.delete();
+            recipeDescriptionRepository.save(description);
+        }
+    }
+
+    private void deleteIngredients(Recipe recipe) {
+        List<Ingredient> ingredientList = ingredientRepository.findByRecipeAndStatusEquals(recipe, ACTIVE);
+        for (Ingredient ingredient : ingredientList) {
+            ingredient.delete();
+            ingredientRepository.save(ingredient);
+        }
+    }
+
+    // [작성자] 레시피글 수정 화면 조회
+    public RecipeEditViewResponse getRecipeEditView(Long recipeIdx) throws BaseException {
+        try {
+            Recipe recipe = recipeRepository.findById(recipeIdx).orElseThrow(() -> new BaseException(INVALID_RECIPE_IDX));
+            if (recipe.getStatus().equals(INACTIVE)) throw new BaseException(ALREADY_DELETED_GIVEAWAY);
+
+            User user = userRepository.findByUserIdx(getUserIdxWithValidation()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            validateWriter(user, recipe);
+
+            List<IngredientDto> ingredientList = getIngredientList(recipe);
+            List<SauceDto> sauceList = getSauceList(recipe);
+            List<RecipeDescriptionDto> recipeDescriptionList = getRecipeDescriptionList(recipe);
+
+            return new RecipeEditViewResponse(recipe.getTitle(), recipe.getContent(), recipe.getRecipeImage(),
+                    ingredientList, sauceList, recipeDescriptionList,
+                    recipe.getUser().getNickname(), recipe.getUser().getContact(), recipe.getUser().getProfileImage());
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    // [작성자] 레시피글 수정
+    @Transactional(rollbackFor = Exception.class)
+    public void editRecipe(Long recipeIdx, MultipartFile image, RecipeEditRequest recipeEditRequest) throws BaseException {
+        try {
+            Recipe recipe = recipeRepository.findById(recipeIdx).orElseThrow(() -> new BaseException(INVALID_RECIPE_IDX));
+            if (recipe.getStatus().equals(INACTIVE)) throw new BaseException(ALREADY_DELETED_RECIPE);
+
+            User user = userRepository.findByUserIdx(getUserIdxWithValidation()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            validateWriter(user, recipe);
+
+            if (recipeEditRequest.title() != null) {
+                if (!recipeEditRequest.title().equals("") && !recipeEditRequest.title().equals(" "))
+                    recipe.modifyTitle(recipeEditRequest.title());
+                else throw new BaseException(BLANK_RECIPE_TITLE);
+            }
+            if (recipeEditRequest.content() != null) {
+                if (!recipeEditRequest.content().equals("") && !recipeEditRequest.content().equals(" "))
+                    recipe.modifyContent(recipeEditRequest.content());
+                else throw new BaseException(BLANK_RECIPE_CONTENT);
+            }
+            if (recipeEditRequest.ingredientList() != null && recipeEditRequest.sauceList() != null) {
+                deleteIngredients(recipe);
+
+                List<Ingredient> ingredientList = recipeEditRequest.ingredientList().stream()
+                        .map(ingredientDto -> new Ingredient(recipe, ingredientDto.name(), ingredientDto.quantity(), INGREDIENT)).toList();
+                List<Ingredient> sauceList = recipeEditRequest.sauceList().stream()
+                        .map(sauceDto -> new Ingredient(recipe, sauceDto.name(), sauceDto.quantity(), SAUCE)).toList();
+                ingredientRepository.saveAll(ingredientList);
+                ingredientRepository.saveAll(sauceList);
+            }
+            if (recipeEditRequest.recipeDescriptionList() != null) {
+                deleteRecipeDescriptions(recipe);
+
+                List<RecipeDescription> descriptionList = recipeEditRequest.recipeDescriptionList().stream()
+                        .map(descriptionDto -> new RecipeDescription(recipe, descriptionDto.orderNumber(), descriptionDto.description())).toList();
+                recipeDescriptionRepository.saveAll(descriptionList);
+            }
+            if (image != null) {
+                // delete previous image
+                boolean isDeleted = gcsService.deleteImage(recipe.getRecipeImage());
+                if (!isDeleted) throw new BaseException(IMAGE_DELETE_FAIL);
+
+                // upload new image
+                String fullPath = gcsService.uploadImage("recipe", image);
+                String newImageUrl = "https://storage.googleapis.com/"+bucketName+"/"+fullPath;
+                recipe.modifyImage(newImageUrl);
+            } else throw new BaseException(NULL_RECIPE_IMAGE);
             recipeRepository.save(recipe);
         } catch (BaseException e) {
             throw e;
         } catch (Exception e) {
             throw new BaseException(DATABASE_ERROR);
         }
+    }
+
+    private List<RecipeDescriptionDto> getRecipeDescriptionList(Recipe recipe) {
+        return recipeDescriptionRepository.findByRecipeAndStatusEqualsOrderByCreatedDateDesc(recipe, ACTIVE).stream()
+                .map(description -> new RecipeDescriptionDto(
+                        description.getOrderNumber(),
+                        description.getDescription())).toList();
+    }
+
+    private List<SauceDto> getSauceList(Recipe recipe) {
+        return ingredientRepository.findByRecipeAndIngredientTypeAndStatusEqualsOrderByCreatedDateDesc(recipe, SAUCE, ACTIVE).stream()
+                .map(sauce -> new SauceDto(
+                        sauce.getName(),
+                        sauce.getQuantity())).toList();
+    }
+
+    private List<IngredientDto> getIngredientList(Recipe recipe) {
+        return ingredientRepository.findByRecipeAndIngredientTypeAndStatusEqualsOrderByCreatedDateDesc(recipe, INGREDIENT, ACTIVE).stream()
+                .map(ingredient -> new IngredientDto(
+                        ingredient.getName(),
+                        ingredient.getQuantity())).toList();
     }
 
     private static void validateWriter(User user, Recipe recipe) throws BaseException {

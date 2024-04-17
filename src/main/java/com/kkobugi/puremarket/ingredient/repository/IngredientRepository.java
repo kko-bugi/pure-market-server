@@ -9,4 +9,5 @@ import java.util.List;
 
 public interface IngredientRepository extends JpaRepository<Ingredient, Long> {
     List<Ingredient> findByRecipeAndIngredientTypeAndStatusEqualsOrderByCreatedDateDesc(Recipe recipe, IngredientType ingredientType, String status);
+    List<Ingredient> findByRecipeAndStatusEquals(Recipe recipe, String status);
 }

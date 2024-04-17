@@ -33,11 +33,18 @@ public enum BaseResponseStatus {
     TITLE_EXCEEDED_MAX_LIMIT(false, 2101, "제목은 32자 이하여야 합니다."),
     NO_PRODUCE_WRITER(false, 2102, "해당 판매글의 작성자가 아닙니다."),
     ALREADY_DELETED_PRODUCE(false, 2103, "이미 삭제된 판매글입니다."),
+    BLANK_PRODUCE_TITLE(false, 2104, "제목이 비었습니다."),
+    BLANK_PRODUCE_CONTENT(false, 2105, "내용이 비었습니다."),
+    BLANK_PRODUCE_PRICE(false, 2106, "가격이 비었습니다."),
+    NULL_PRODUCE_IMAGE(false, 2107, "이미지가 비었습니다."),
 
     // recipe(2200-2299)
     INVALID_RECIPE_IDX(false, 2200, "잘못된 레시피글 idx 입니다."),
     NO_RECIPE_WRITER(false, 2201, "해당 레시피글의 작성자가 아닙니다."),
     ALREADY_DELETED_RECIPE(false, 2202, "이미 삭제된 레시피글입니다."),
+    BLANK_RECIPE_TITLE(false, 2203, "제목이 비었습니다."),
+    BLANK_RECIPE_CONTENT(false, 2204, "내용이 비었습니다."),
+    NULL_RECIPE_IMAGE(false, 2205, "이미지가 비었습니다."),
 
     // ingredient(2300-2399)
 
@@ -45,8 +52,16 @@ public enum BaseResponseStatus {
     INVALID_GIVEAWAY_IDX(false, 2400, "잘못된 나눔글 idx 입니다."),
     NO_GIVEAWAY_WRITER(false, 2401, "해당 나눔글의 작성자가 아닙니다."),
     ALREADY_DELETED_GIVEAWAY(false, 2402, "이미 삭제된 나눔글입니다."),
+    NULL_GIVEAWAY_IMAGE(false, 2403, "이미지가 비었습니다."),
+    BLANK_GIVEAWAY_TITLE(false, 2404, "제목이 비었습니다."),
+    BLANK_GIVEAWAY_CONTENT(false, 2405, "내용이 비었습니다."),
 
-    UNKNOWN_ERROR(false, 2500, "알 수 없는 에러"),
+    // comment(2500-2599)
+    INVALID_COMMENT_IDX(false, 2500, "잘못된 댓글 idx 입니다."),
+    NO_COMMENT_WRITER(false, 2501, "댓글 작성자가 아닙니다."),
+    ALREADY_DELETED_COMMENT(false, 2502, "이미 삭제된 댓글입니다."),
+    BLANK_COMMENT_CONTENT(false, 2503, "댓글 내용이 비었습니다."),
+
     ACCESS_DENIED(false, 403, "접근 권한이 없습니다."),
 
     /**
@@ -57,6 +72,7 @@ public enum BaseResponseStatus {
 
     // produce(3100-3199)
     NULL_PRODUCE_LIST(false, 3100, "판매글 목록이 비었습니다."),
+    IMAGE_DELETE_FAIL(false, 3101, "이미지 삭제에 실패했습니다."),
 
     // recipe(3200-3299)
 

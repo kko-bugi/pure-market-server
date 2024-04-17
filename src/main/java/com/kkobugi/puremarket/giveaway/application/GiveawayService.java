@@ -1,12 +1,12 @@
 package com.kkobugi.puremarket.giveaway.application;
 
+import com.kkobugi.puremarket.comment.domain.dto.CommentDto;
+import com.kkobugi.puremarket.comment.repository.CommentRepository;
 import com.kkobugi.puremarket.common.BaseException;
 import com.kkobugi.puremarket.common.gcs.GCSService;
-import com.kkobugi.puremarket.giveaway.domain.dto.GiveawayListResponse;
-import com.kkobugi.puremarket.giveaway.domain.dto.GiveawayResponse;
+import com.kkobugi.puremarket.giveaway.domain.dto.*;
 import com.kkobugi.puremarket.giveaway.domain.entity.Giveaway;
 import com.kkobugi.puremarket.giveaway.repository.GiveawayRepository;
-import com.kkobugi.puremarket.giveaway.domain.dto.GiveawayPostRequest;
 import com.kkobugi.puremarket.user.application.AuthService;
 import com.kkobugi.puremarket.user.domain.entity.User;
 import com.kkobugi.puremarket.user.repository.UserRepository;
@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.kkobugi.puremarket.common.constants.Constant.Giveaway.DONE;
 import static com.kkobugi.puremarket.common.constants.Constant.Giveaway.GIVEAWAY;
@@ -31,6 +32,7 @@ public class GiveawayService {
     private final AuthService authService;
     private final UserRepository userRepository;
     private final GCSService gcsService;
+    private final CommentRepository commentRepository;
 
     @Value("${spring.cloud.gcp.storage.bucket}")
     private String bucketName;
@@ -77,8 +79,13 @@ public class GiveawayService {
             if (userIdx != null && giveaway.getUser() != null) {
                 isWriter = userIdx.equals(giveaway.getUser().getUserIdx());
             }
-            return new GiveawayResponse(giveaway.getGiveawayIdx(), giveaway.getTitle(), giveaway.getContent(), giveaway.getGiveawayImage(), giveaway.getStatus(),
-                                            giveaway.getUser().getNickname(), giveaway.getUser().getContact(), giveaway.getUser().getProfileImage(), isWriter);
+            List<CommentDto> commentList = commentRepository.findByGiveawayOrderByCreatedDateAsc(giveaway).stream()
+                    .map(comment -> new CommentDto(comment.getCommentIdx(), comment.getUser().getNickname(), comment.getUser().getProfileImage(),
+                            comment.getContent(), comment.getCreatedDate())).collect(Collectors.toList());
+
+            return new GiveawayResponse(giveaway.getGiveawayIdx(), giveaway.getTitle(), giveaway.getContent(), giveaway.getGiveawayImage(),
+                    giveaway.getStatus(), giveaway.getUser().getNickname(), giveaway.getUser().getContact(), giveaway.getUser().getProfileImage(),
+                    isWriter, commentList);
         } catch (BaseException e) {
             throw e;
         } catch (Exception e) {
@@ -133,6 +140,7 @@ public class GiveawayService {
     }
 
     // 나눔글 삭제
+    @Transactional(rollbackFor = Exception.class)
     public void deleteGiveaway(Long giveawayIdx) throws BaseException {
         try {
             Long userIdx = getUserIdxWithValidation();
@@ -142,6 +150,65 @@ public class GiveawayService {
             validateWriter(user, giveaway);
 
             giveaway.delete();
+            boolean isDeleted = gcsService.deleteImage(giveaway.getGiveawayImage());
+            if (!isDeleted) throw new BaseException(IMAGE_DELETE_FAIL);
+
+            giveawayRepository.save(giveaway);
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    // [작성자] 나눔글 수정 화면 조회
+    public GiveawayEditViewResponse getGiveawayEditView(Long giveawayIdx) throws BaseException {
+        try {
+            Giveaway giveaway = giveawayRepository.findById(giveawayIdx).orElseThrow(() -> new BaseException(INVALID_GIVEAWAY_IDX));
+            if (giveaway.getStatus().equals(INACTIVE)) throw new BaseException(ALREADY_DELETED_GIVEAWAY);
+
+            User user = userRepository.findByUserIdx(getUserIdxWithValidation()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            validateWriter(user, giveaway);
+
+            return new GiveawayEditViewResponse(giveaway.getTitle(), giveaway.getContent(), giveaway.getGiveawayImage(),
+                    giveaway.getUser().getNickname(), giveaway.getUser().getContact(), giveaway.getUser().getProfileImage());
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    // [작성자] 나눔글 수정
+    @Transactional(rollbackFor = Exception.class)
+    public void editGiveaway(Long giveawayIdx, MultipartFile image, GiveawayEditRequest giveawayEditRequest) throws BaseException {
+        try {
+            Giveaway giveaway = giveawayRepository.findById(giveawayIdx).orElseThrow(() -> new BaseException(INVALID_GIVEAWAY_IDX));
+            if (giveaway.getStatus().equals(INACTIVE)) throw new BaseException(ALREADY_DELETED_GIVEAWAY);
+
+            User user = userRepository.findByUserIdx(getUserIdxWithValidation()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            validateWriter(user, giveaway);
+
+            if (giveawayEditRequest.title() != null) {
+                if (!giveawayEditRequest.title().equals("") && !giveawayEditRequest.title().equals(" "))
+                    giveaway.modifyTitle(giveawayEditRequest.title());
+                else throw new BaseException(BLANK_GIVEAWAY_TITLE);
+            }
+            if (giveawayEditRequest.content() != null) {
+                if (!giveawayEditRequest.content().equals("") && !giveawayEditRequest.content().equals(" "))
+                    giveaway.modifyContent(giveawayEditRequest.content());
+                else throw new BaseException(BLANK_GIVEAWAY_CONTENT);
+            }
+            if (image != null) {
+                // delete previous image
+                boolean isDeleted = gcsService.deleteImage(giveaway.getGiveawayImage());
+                if (!isDeleted) throw new BaseException(IMAGE_DELETE_FAIL);
+
+                // upload new image
+                String fullPath = gcsService.uploadImage("giveaway", image);
+                String newImageUrl = "https://storage.googleapis.com/"+bucketName+"/"+fullPath;
+                giveaway.modifyImage(newImageUrl);
+            } else throw new BaseException(NULL_GIVEAWAY_IMAGE);
             giveawayRepository.save(giveaway);
         } catch (BaseException e) {
             throw e;

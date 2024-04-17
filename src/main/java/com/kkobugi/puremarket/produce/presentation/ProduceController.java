@@ -3,9 +3,7 @@ package com.kkobugi.puremarket.produce.presentation;
 import com.kkobugi.puremarket.common.BaseException;
 import com.kkobugi.puremarket.common.BaseResponse;
 import com.kkobugi.puremarket.produce.application.ProduceService;
-import com.kkobugi.puremarket.produce.domain.dto.ProduceListResponse;
-import com.kkobugi.puremarket.produce.domain.dto.ProducePostRequest;
-import com.kkobugi.puremarket.produce.domain.dto.ProduceResponse;
+import com.kkobugi.puremarket.produce.domain.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -104,6 +102,31 @@ public class ProduceController {
     public BaseResponse<?> deleteProduce(@Parameter(description = "판매글 Idx", in = ParameterIn.QUERY) @RequestParam Long produceIdx) {
         try {
             produceService.deleteProduce(produceIdx);
+            return new BaseResponse<>(SUCCESS);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    // [작성자] 판매글 수정화면 조회
+    @GetMapping("/editView/{produceIdx}")
+    @Operation(summary = "판매글 수정화면 조회", description = "해당 판매글의 원데이터를 조회한다.")
+    public BaseResponse<ProduceEditViewResponse> getProduceEditView(@Parameter(description = "판매글 Idx", in = ParameterIn.PATH) @PathVariable Long produceIdx) {
+        try {
+            return new BaseResponse<>(produceService.getProduceEditView(produceIdx));
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    // [작성자] 판매글 수정
+    @PatchMapping("/edit/{produceIdx}")
+    @Operation(summary = "판매글 수정", description = "판매글을 수정한다.")
+    public BaseResponse<?> editProduce(@Parameter(description = "판매글 Idx", in = ParameterIn.PATH) @PathVariable Long produceIdx,
+                                       @RequestPart(value = "image", required = false) MultipartFile image,
+                                       @RequestPart(value = "produceRequest") ProduceEditRequest produceEditRequest) {
+        try {
+            produceService.editProduce(produceIdx, image, produceEditRequest);
             return new BaseResponse<>(SUCCESS);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());

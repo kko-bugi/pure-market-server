@@ -1,5 +1,6 @@
 package com.kkobugi.puremarket.recipe.domain.dto;
 
+import com.kkobugi.puremarket.comment.domain.dto.CommentDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
@@ -27,20 +28,6 @@ public record RecipeResponse(
         @Schema(description = "프로필 이미지 url", example = "https://dwffwdfdwbwv")
         String profileImage,
         @Schema(description = "글 작성자 여부", example = "true")
-        boolean isWriter) {
-    public record IngredientDto(
-            @Schema(description = "재료명", example = "토마토")
-            String name,
-            @Schema(description = "재료 양", example = "한 알")
-            String quantity) {}
-    public record SauceDto(
-            @Schema(description = "양념명", example = "소금")
-            String name,
-            @Schema(description = "양념 양", example = "한 꼬집")
-            String quantity) {}
-    public record RecipeDescriptionDto(
-            @Schema(description = "조리 순서 번호", example = "1")
-            Integer orderNumber,
-            @Schema(description = "상세 설명", example = "재료를 함께 볶아준다.")
-            String description) {}
-}
+        boolean isWriter,
+        @Schema(description = "댓글 리스트")
+        List<CommentDto> commentList) {}
